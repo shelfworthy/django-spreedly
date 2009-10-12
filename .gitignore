@@ -1,0 +1,4 @@
+*.py?
+*.db
+nbproject
+settings_local.py

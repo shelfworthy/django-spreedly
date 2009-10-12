@@ -1,0 +1,3 @@
+[submodule "pyspreedly"]
+	path = pyspreedly
+	url = git://github.com/msamoylov/python-spreedly.git
