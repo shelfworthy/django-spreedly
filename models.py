@@ -1,4 +1,9 @@
+# -*- coding: utf-8 -*-
+from django.conf import settings
 from django.db import models
+
+SPREEDLY_AUTH_TOKEN = getattr(settings, 'SPREEDLY_AUTH_TOKEN', '')
+SPREEDLY_SITE_NAME = getattr(settings, 'SPREEDLY_SITE_NAME', '')
 
 class PlanManager(models.Manager):
     def sync(self):
@@ -6,7 +11,7 @@ class PlanManager(models.Manager):
         Sync subscription plans with Spreedly API
         '''
         client = Client(
-            settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME
+            SPREEDLY_AUTH_TOKEN, SPREEDLY_SITE_NAME
         )
 
         for plan in client.get_plans():
