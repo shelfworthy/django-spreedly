@@ -86,7 +86,7 @@ class Subscription(models.Model):
     '''
     Paid subscription
     '''
-    member = models.ForeignKey(Member)
+    user = models.ForeignKey('auth.User')
     plan = models.ForeignKey(Plan)
 
     active = models.BooleanField(default=False)
