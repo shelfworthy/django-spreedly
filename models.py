@@ -12,9 +12,7 @@ class PlanManager(models.Manager):
         '''
         from pyspreedly.api import Client
 
-        client = Client(
-            SPREEDLY_AUTH_TOKEN, SPREEDLY_SITE_NAME
-        )
+        client = Client(SPREEDLY_AUTH_TOKEN, SPREEDLY_SITE_NAME)
 
         for plan in client.get_plans():
             created = False
@@ -77,13 +75,6 @@ class Plan(models.Model):
         return self.name
 
 class SubscriptionManager(models.Manager):
-    def create_subscription(self, data):
-        client = Client(
-            settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME
-        )
-        # We select a trial plan
-        p = Plan.objects.get(plan_type='free_trial', enabled=True)
-
     def get_for_user(self, user):
         qs = self.model.objects.filter(user=user)
         if qs.count() > 0:
@@ -96,28 +87,10 @@ class SubscriptionManager(models.Manager):
         return self.model.objects.filter(user=user, active=True).count()
 
 class Subscription(models.Model):
-    '''
-    Paid subscription
-    '''
     user = models.ForeignKey('auth.User')
     plan = models.ForeignKey(Plan)
 
     active = models.BooleanField(default=False)
-    lifetime = models.BooleanField(u'Lifetime subscription', default=False,
-        help_text=u'It has no expiration date')
-
-    date_created = models.DateTimeField(editable=False)
-    date_changed = models.DateTimeField(editable=False)
-    date_expiration = models.DateTimeField(blank=True, editable=False, null=True)
-
-    token = models.CharField(max_length=100)
-    trial_active = models.BooleanField(default=False)
-    trial_elegible = models.BooleanField(default=False)
-    recurring = models.BooleanField(default=False)
-
-    speedly_customer_id = models.IntegerField(db_index=True)
-
-    objects = SubscriptionManager()
 
     def __unicode__(self):
-        return u'Subscription for %s' % self.member
+        return u'Subscription for %s' % self.user

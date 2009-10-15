@@ -3,4 +3,5 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('subscription.views',
     (r'^$', 'plan_list'),
+    (r'^changes/$', 'changes'),
 )

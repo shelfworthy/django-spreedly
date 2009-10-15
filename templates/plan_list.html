@@ -1,12 +1,16 @@
+{% if not subscription or not subscription.active %}
+    <h3>You see this page because you have no active subscription.</h3>
+{% endif %}
 Available plans:
 <ul>
     {% for object in object_list %}
     <li>
         {% ifequal subscription.plan object %}
-            <strong>{{ object }}</strong> -- your active plan
+            <strong>{{ object }}</strong>
         {% else %}
-            <a href="" title="Subscribe to {{ object }}">{{ object }}</a>. {{ object.description }} :: {{ object.terms }} :: ${{ object.price }} :: {{ object.duration }} :: {{ object.feature_level }}
+            <a href="https://spreedly.com/{{ site }}/subscribers/{{ user.id }}/subscribe/{{ object.speedly_id }}/{{ user.username }}?email={{ user.email }}&amp;first_name={{ user.first_name }}&amp;last_name={{ user.last_name }}" title="Subscribe to {{ object }}">{{ object }}</a>
         {% endifequal %}
+        :: {{ object.description }} :: {{ object.terms }} :: ${{ object.price }} :: {{ object.duration }} :: {{ object.feature_level }}
     </li>
     {% endfor %}
 </ul>
