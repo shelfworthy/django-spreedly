@@ -10,6 +10,8 @@ class PlanManager(models.Manager):
         '''
         Sync subscription plans with Spreedly API
         '''
+        from pyspreedly.api import Client
+
         client = Client(
             SPREEDLY_AUTH_TOKEN, SPREEDLY_SITE_NAME
         )
@@ -81,6 +83,17 @@ class SubscriptionManager(models.Manager):
         )
         # We select a trial plan
         p = Plan.objects.get(plan_type='free_trial', enabled=True)
+
+    def get_for_user(self, user):
+        qs = self.model.objects.filter(user=user)
+        if qs.count() > 0:
+            return qs.latest()
+
+    def has_active(self, user):
+        '''
+        Determine if given user has active subscription
+        '''
+        return self.model.objects.filter(user=user, active=True).count()
 
 class Subscription(models.Model):
     '''

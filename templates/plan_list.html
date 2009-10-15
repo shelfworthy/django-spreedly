@@ -1,0 +1,12 @@
+Available plans:
+<ul>
+    {% for object in object_list %}
+    <li>
+        {% ifequal subscription.plan object %}
+            <strong>{{ object }}</strong> -- your active plan
+        {% else %}
+            <a href="" title="Subscribe to {{ object }}">{{ object }}</a>. {{ object.description }} :: {{ object.terms }} :: ${{ object.price }} :: {{ object.duration }} :: {{ object.feature_level }}
+        {% endifequal %}
+    </li>
+    {% endfor %}
+</ul>
