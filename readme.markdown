@@ -32,24 +32,24 @@ Installation
 3) The following can also be added, they are optional:
 
 	# the base subscription url (where users will be redirected when their subscriptions expire)
-	# this defaults to 'subscriptions' if you don't add a value to your settings.
-	SUBSCRIPTION_URL ='register'
+	# this defaults to '/subscriptions' if you don't add a value to your settings.
+	SUBSCRIPTIONS_URL ='/register'
 
 	# If you want to use your own subscription list page template:
 	# this defaults to 'subscriptions/templates/subscriptions.html'
-	SUBSCRIPTION_LIST_TEMPLATE = 'path/to/your/template.html'
+	SUBSCRIPTIONS_LIST_TEMPLATE = 'path/to/your/template.html'
 
 	# if you want to restrict access to your entire site based to only users with an active subscription
 	# this defaults to False
-	SUBSCRIPTION_USERS_ONLY = True
+	SUBSCRIPTIONS_USERS_ONLY = True
 	
 	# URL paths that a user without a subscription can vist without being redirected to the subscription list:
-	SUBSCRIPTION_EXTRA_ALLOWED_PATHS = ['/', '/some/page/']
+	SUBSCRIPTIONS_ALLOWED_PATHS = ['/', '/some/page/']
 
 3) Add the following to urlpatterns in `urls.py`:
 
 	import subscriptions.settings as subscription_settings
-	(r'^%s/' % subscription_settings.SUBSCRIPTION_URL, include('subscriptions.urls')),
+	(r'^%s/' % subscription_settings.SUBSCRIPTIONS_URL[1:], include('subscriptions.urls')),
 
 4) Run syncdb
 

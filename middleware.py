@@ -11,12 +11,16 @@ class SubscriptionMiddleware(object):
     subscription.
     '''
     def process_request(self, request):
-        if not request.path in subscription_settings.SUBSCRIPTION_EXTRA_ALLOWED_PATHS \
-            and not subscription_settings.SUBSCRIPTION_URL in request.path:
-                if not request.user.is_authenticated() \
-                    and  subscription_settings.SUBSCRIPTION_USERS_ONLY:
-                        return HttpResponseRedirect(subscription_settings.SUBSCRIPTION_URL)
-                elif request.user.is_authenticated() \
-                    and not Subscription.objects.has_active(request.user):
-                        return HttpResponseRedirect(subscription_settings.SUBSCRIPTION_URL)
+        allowed = False
+        for path in subscription_settings.SUBSCRIPTIONS_ALLOWED_PATHS + [subscription_settings.SUBSCRIPTIONS_URL]:
+            if request.path.startswith(path):
+                allowed = True
+        
+        if not allowed:
+            if not request.user.is_authenticated() \
+                and  subscription_settings.SUBSCRIPTIONS_USERS_ONLY:
+                    return HttpResponseRedirect(subscription_settings.SUBSCRIPTIONS_URL)
+            elif request.user.is_authenticated() \
+                and not Subscription.objects.has_active(request.user):
+                    return HttpResponseRedirect(subscription_settings.SUBSCRIPTIONS_URL)
         return
