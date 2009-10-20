@@ -1,7 +1,7 @@
 from django.conf import settings
 
-from models import Plan
-from pyspreedly.api import Client
+from subscriptions.models import Plan
+from subscriptions.pyspreedly.api import Client
 
 def sync_plans(self):
     '''

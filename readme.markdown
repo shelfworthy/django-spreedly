@@ -44,6 +44,7 @@ Installation
 	SUBSCRIPTIONS_USERS_ONLY = True
 	
 	# URL paths that a user without a subscription can vist without being redirected to the subscription list:
+	# these can be single pages ('/some/page/') of full directories ('/directory')
 	SUBSCRIPTIONS_ALLOWED_PATHS = ['/', '/some/page/']
 
 3) Add the following to urlpatterns in `urls.py`:
