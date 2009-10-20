@@ -2,3 +2,4 @@
 *.db
 nbproject
 settings_local.py
+.DS_Store
