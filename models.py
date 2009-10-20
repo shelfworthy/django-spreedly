@@ -1,5 +1,5 @@
-from django.conf import settings
 from django.db import models
+from django.conf import settings
 
 class PlanManager(models.Manager):
     def sync(self):
@@ -70,25 +70,11 @@ class Plan(models.Model):
     def __unicode__(self):
         return self.name
 
-class SubscriptionManager(models.Manager):
-    def get_for_user(self, user):
-        qs = self.model.objects.filter(user=user)
-        if qs.count() > 0:
-            return qs.latest()
-    
-    def has_active(self, user):
-        '''
-        Determine if given user has active subscription
-        '''
-        return self.model.objects.filter(user=user, active=True).count()
-
 class Subscription(models.Model):
     user = models.ForeignKey('auth.User')
     plan = models.ForeignKey(Plan)
     
     active = models.BooleanField(default=False)
-    
-    objects = SubscriptionManager()
     
     def __unicode__(self):
         return u'Subscription for %s' % self.user

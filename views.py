@@ -6,12 +6,17 @@ from models import Plan, Subscription
 from pyspreedly.api import Client
 
 def plan_list(request):
+    try:
+        sub = Subscription.objects.get(user=request.user)
+    except Subscription.DoesNotExist:
+        sub = None
+    
     return list_detail.object_list(
         request,
         queryset=Plan.objects.all(),
         template_name='plan_list.html',
         extra_context={
-            'subscription': Subscription.objects.get_for_user(request.user),
+            'current_user_subscription': sub,
             'site': settings.SPREEDLY_SITE_NAME
         }
     )
@@ -29,7 +34,7 @@ def spreedly_listener(request):
                     data = client.get_info(int(id))
                     subscription, created = Subscription.objects.get_or_create(
                         user__pk=id
-                        )
+                    )
                     for k, v in data.items():
                         if hasattr(subscription, k):
                             setattr(subscription, k, v)
