@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
-from subscription.models import Subscription
+from subscriptions.models import Subscription
+import subscriptions.settings as subscription_settings
 
 class SubscriptionMiddleware(object):
     '''
@@ -9,13 +11,12 @@ class SubscriptionMiddleware(object):
     subscription.
     '''
     def process_request(self, request):
-        if request.user.is_authenticated():
-            user = request.user.get_profile()
-            # If user has no active subsription - redirect
-            # to subscription management page
-            if not request.path in settings.SUBSCRIPTION_ALLOWED_PATHS \
-                and not settings.SUBSCRIPTION_REDIRECT_URI in request.path \
-                and not settings.MEDIA_URL in request.path \
-                and not Subscription.objects.has_active(user):
-                    return HttpResponseRedirect(SUBSCRIPTION_REDIRECT_URI)
+        if not request.path in subscription_settings.SUBSCRIPTION_EXTRA_ALLOWED_PATHS \
+            and not subscription_settings.SUBSCRIPTION_URL in request.path:
+                if not request.user.is_authenticated() \
+                    and  subscription_settings.SUBSCRIPTION_USERS_ONLY:
+                        return HttpResponseRedirect(subscription_settings.SUBSCRIPTION_URL)
+                elif request.user.is_authenticated() \
+                    and not Subscription.objects.has_active(request.user):
+                        return HttpResponseRedirect(subscription_settings.SUBSCRIPTION_URL)
         return

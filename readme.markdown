@@ -1,16 +1,57 @@
-To install:
------------
+Info
+====
 
-SPREEDLY_AUTH_TOKEN = 
-SPREEDLY_SITE_NAME = 
+This app can be used to add support for [spreedly](https://spreedly.com/) to your django app.
 
-SUBSCRIPTION_LIST_TEMPLATE
+The app currently covers:
 
-Add the following to your URLs
+* syncing subscriptions with your spreedly account.
+* listing available subscriptions on your site.
+* letting a user choose and signup for a subscription from your site.
+* letting spreedly checkin and relay currently user subscription info.
+* disabling part of your site for non-subscribed users (optional)
+* redirecting users to the subscription page when their subscription expires.
 
-    # Subscription
-    (r'^subscription/', include('subscription.urls')),
+Installation
+============
 
+1. Checkout the project into a folder called `subscriptions` on your python path:
+
+	git clone git://github.com/chrisdrackett/django-paid-subscriptions.git subscriptions
+
+2. Update the submodules (this gets the python tender API wrapper)
+
+	cd subscriptions/
+	git submodule update --init
+
+2) Add `subscriptions` to your installed apps, and add the following to `settings.py`:
+
+	SPREEDLY_AUTH_TOKEN = 'your auth token'
+	SPREEDLY_SITE_NAME = 'your site name'
+
+3) The following can also be added, they are optional:
+
+	# the base subscription url (where users will be redirected when their subscriptions expire)
+	# this defaults to 'subscriptions' if you don't add a value to your settings.
+	SUBSCRIPTION_URL ='register'
+
+	# If you want to use your own subscription list page template:
+	# this defaults to 'subscriptions/templates/subscriptions.html'
+	SUBSCRIPTION_LIST_TEMPLATE = 'path/to/your/template.html'
+
+	# if you want to restrict access to your entire site based to only users with an active subscription
+	# this defaults to False
+	SUBSCRIPTION_USERS_ONLY = True
+	
+	# URL paths that a user without a subscription can vist without being redirected to the subscription list:
+	SUBSCRIPTION_EXTRA_ALLOWED_PATHS = ['/', '/some/page/']
+
+3) Add the following to urlpatterns in `urls.py`:
+
+	import subscriptions.settings as subscription_settings
+	(r'^%s/' % subscription_settings.SUBSCRIPTION_URL, include('subscriptions.urls')),
+
+4) Run syncdb
 
 ----
 
@@ -18,5 +59,4 @@ If you want to make your site subscription only:
 
 use SubscriptionMiddleware and the following settings:
 
-SUBSCRIPTION_ALLOWED_PATHS = ['/settings/', '']
-SUBSCRIPTION_REDIRECT_URI ='/subscription/'
+

@@ -2,8 +2,9 @@ from django.http import Http404, HttpResponse
 from django.views.generic import list_detail
 from django.conf import settings
 
-from models import Plan, Subscription
-from pyspreedly.api import Client
+from subscriptions.pyspreedly.api import Client
+from subscriptions.models import Plan, Subscription
+import subscriptions.settings as subscription_settings
 
 def plan_list(request):
     sub = None
@@ -16,7 +17,7 @@ def plan_list(request):
     return list_detail.object_list(
         request,
         queryset=Plan.objects.all(),
-        template_name=getattr(settings, 'SUBSCRIPTION_LIST_TEMPLATE', 'plan_list.html'),
+        template_name=subscription_settings.SUBSCRIPTION_LIST_TEMPLATE,
         extra_context={
             'current_user_subscription': sub,
             'site': settings.SPREEDLY_SITE_NAME
