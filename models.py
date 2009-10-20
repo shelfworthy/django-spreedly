@@ -1,38 +1,4 @@
 from django.db import models
-from django.conf import settings
-
-class PlanManager(models.Manager):
-    def sync(self):
-        '''
-        Sync subscription plans with Spreedly API
-        '''
-        from pyspreedly.api import Client
-
-        client = Client(SPREEDLY_AUTH_TOKEN, SPREEDLY_SITE_NAME)
-
-        for plan in client.get_plans():
-            created = False
-            try:
-                p = self.model.objects.get(speedly_id=plan['speedly_id'])
-            except Plan.DoesNotExist:
-                p = self.model()
-                for k, v in plan.items():
-                    if hasattr(p, k):
-                        setattr(p, k, v)
-                p.save()
-                created = True
-
-            # Let's compare existing records
-            if not created:
-                changed = False
-                for k, v in plan.items():
-                    if hasattr(p, k) and not getattr(p, k) == v:
-                        setattr(p, k, v)
-                        changed = True
-
-                if changed:
-                    p.save()
-
 
 class Plan(models.Model):
     '''
@@ -64,8 +30,6 @@ class Plan(models.Model):
     
     speedly_id = models.IntegerField(db_index=True)
     speedly_site_id = models.IntegerField(db_index=True)
-    
-    objects = PlanManager()
     
     def __unicode__(self):
         return self.name

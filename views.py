@@ -14,7 +14,7 @@ def plan_list(request):
     return list_detail.object_list(
         request,
         queryset=Plan.objects.all(),
-        template_name='plan_list.html',
+        template_name=getattr(settings, 'LIST_TEMPLATE', 'plan_list.html'),
         extra_context={
             'current_user_subscription': sub,
             'site': settings.SPREEDLY_SITE_NAME
