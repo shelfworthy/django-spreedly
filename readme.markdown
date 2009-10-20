@@ -4,6 +4,8 @@ To install:
 SPREEDLY_AUTH_TOKEN = 
 SPREEDLY_SITE_NAME = 
 
+SUBSCRIPTION_LIST_TEMPLATE
+
 Add the following to your URLs
 
     # Subscription

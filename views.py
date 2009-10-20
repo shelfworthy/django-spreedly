@@ -6,15 +6,17 @@ from models import Plan, Subscription
 from pyspreedly.api import Client
 
 def plan_list(request):
-    try:
-        sub = Subscription.objects.get(user=request.user)
-    except Subscription.DoesNotExist:
-        sub = None
+    sub = None
+    if request.user.is_authenticated():
+        try:
+            sub = Subscription.objects.get(user=request.user)
+        except Subscription.DoesNotExist:
+            pass
     
     return list_detail.object_list(
         request,
         queryset=Plan.objects.all(),
-        template_name=getattr(settings, 'LIST_TEMPLATE', 'plan_list.html'),
+        template_name=getattr(settings, 'SUBSCRIPTION_LIST_TEMPLATE', 'plan_list.html'),
         extra_context={
             'current_user_subscription': sub,
             'site': settings.SPREEDLY_SITE_NAME
