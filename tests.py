@@ -1,18 +1,15 @@
-# -*- coding: utf-8 -*-
+from pyspreedly.api import Client
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from pyspreedly.api import Client
-from subscription.models import Plan
-
-SPREEDLY_AUTH_TOKEN = getattr(settings, 'SPREEDLY_AUTH_TOKEN', '')
-SPREEDLY_SITE_NAME = getattr(settings, 'SPREEDLY_SITE_NAME', '')
+from models import Plan
 
 class TestSubscription(TestCase):
     def setUp(self):
         user = User.objects.create(username='test')
-        self.sclient = Client(SPREEDLY_AUTH_TOKEN, SPREEDLY_SITE_NAME)
+        self.sclient = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
 
     def tearDown(self):
         # Remove all subscribers

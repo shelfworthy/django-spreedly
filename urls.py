@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('subscription.views',
-    (r'^$', 'plan_list'),
-    (r'^changes/$', 'changes'),
+    url(r'^$', 'plan_list', name='subscription_plans'),
+    url(r'^spreedly_listener/$', 'spreedly_listener', name='spreedly_listener'),
 )
