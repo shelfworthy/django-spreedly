@@ -1,12 +1,15 @@
 from django.http import Http404, HttpResponse
-from django.views.generic import list_detail
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.core.cache import cache
 from django.conf import settings
 
 from subscriptions.pyspreedly.api import Client
+from subscriptions.functions import sync_plans
 from subscriptions.models import Plan, Subscription
 import subscriptions.settings as subscription_settings
 
-def plan_list(request):
+def plan_list(request, extra_context=None, **kwargs):
     sub = None
     if request.user.is_authenticated():
         try:
@@ -14,14 +17,28 @@ def plan_list(request):
         except Subscription.DoesNotExist:
             pass
     
-    return list_detail.object_list(
-        request,
-        queryset=Plan.objects.all(),
-        template_name=subscription_settings.SUBSCRIPTIONS_LIST_TEMPLATE,
-        extra_context={
-            'current_user_subscription': sub,
-            'site': settings.SPREEDLY_SITE_NAME
-        }
+    cache_key = 'subscriptions_plans_list'
+    plans = cache.get(cache_key)
+    if not plans:
+        sync_plans()
+        cache_value = list(Plan.objects.all())
+        cache.set(cache_key, plans, 60*60*24)
+    
+    our_context={
+        'current_user_subscription': sub,
+        'site': settings.SPREEDLY_SITE_NAME,
+        'plans': plans,
+        'request': request
+    }
+    if extra_context:
+        our_context.update(extra_context)
+    context = RequestContext(request)
+    for key, value in our_context.items():
+        context[key] = callable(value) and value() or value
+    return render_to_response(
+        subscription_settings.SUBSCRIPTIONS_LIST_TEMPLATE,
+        kwargs,
+        context_instance=context
     )
 
 def spreedly_listener(request):
