@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.cache import cache
@@ -8,6 +8,7 @@ from subscriptions.pyspreedly.api import Client
 from subscriptions.functions import sync_plans
 from subscriptions.models import Plan, Subscription
 import subscriptions.settings as subscription_settings
+from subscriptions.forms import subscribeForm
 
 def plan_list(request, extra_context=None, **kwargs):
     sub = None
@@ -17,18 +18,26 @@ def plan_list(request, extra_context=None, **kwargs):
         except Subscription.DoesNotExist:
             pass
     
+    # cache the subscription list from spreedly for a day
     cache_key = 'subscriptions_plans_list'
     plans = cache.get(cache_key)
     if not plans:
         sync_plans()
-        cache_value = list(Plan.objects.all())
+        plans = list(Plan.objects.filter(enabled=True))
         cache.set(cache_key, plans, 60*60*24)
+    
+    # deal with the form
+    form = subscribeForm(request.POST or None)
+    if form.is_valid():
+        redirect_url = form.save()
+        return HttpResponseRedirect(redirect_url)
     
     our_context={
         'current_user_subscription': sub,
         'site': settings.SPREEDLY_SITE_NAME,
         'plans': plans,
-        'request': request
+        'request': request,
+        'form': form
     }
     if extra_context:
         our_context.update(extra_context)

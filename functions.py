@@ -12,12 +12,10 @@ def sync_plans():
     for plan in client.get_plans():
         p, created = Plan.objects.get_or_create(speedly_id=plan['speedly_id'])
         
-        # Let's compare existing records
-        if not created:
-            changed = False
-            for k, v in plan.items():
-                if hasattr(p, k) and not getattr(p, k) == v:
-                    setattr(p, k, v)
-                    changed = True
-            if changed:
-                p.save()
+        changed = False
+        for k, v in plan.items():
+            if hasattr(p, k) and not getattr(p, k) == v:
+                setattr(p, k, v)
+                changed = True
+        if changed:
+            p.save()

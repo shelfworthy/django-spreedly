@@ -28,17 +28,21 @@ class Plan(models.Model):
     
     version = models.IntegerField(blank=True, default=1)
     
-    speedly_id = models.IntegerField(db_index=True)
+    speedly_id = models.IntegerField(db_index=True, primary_key=True)
     speedly_site_id = models.IntegerField(db_index=True, null=True)
     
     def __unicode__(self):
         return self.name
 
 class Subscription(models.Model):
-    user = models.ForeignKey('auth.User')
+    user = models.OneToOneField('auth.User', primary_key=True)
     plan = models.ForeignKey(Plan)
+    token = models.CharField(max_length=100)
     
+    eligible_for_free_trial = models.BooleanField(default=False)
+    lifetime_subscription = models.BooleanField(default=False)
     active = models.BooleanField(default=False)
+    card_expires_before_next_auto_renew = models.BooleanField(default=False)
     
     def __unicode__(self):
         return u'Subscription for %s' % self.user

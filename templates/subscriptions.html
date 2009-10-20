@@ -1,24 +1,40 @@
-<h3>
+{% load subscription_tags %}
+<h1>Subscriptions</h1>
+<h2>
 	{% if current_user_subscription %}
-    	Your current subscription is {{ current_user_subscription }}.
+    	Your current subscription is {{ current_user_subscription }} and its currently {% if current_user_subscription.active %}Active{% else %}not Active{% endif %}.
 	{% else %}
 		You don't currently have a subscription with this site.
 	{% endif %}
-</h3>
-{% if current_user_subscription %}
-	<h5>Your subscription is currently {% if current_user_subscription.active %}Active{% else %}not Active{% endif %}.</h5>
+</h2>
+
+{% if plans %}
+	<h3>Available plans:</h3>
+	<table>
+		<tr><th>Plan</th><th>Description</th><th>Terms</th><th>Price</th><th>Duration</th><th>Feature Level</th></tr>
+		{% for plan in plans %}
+			<tr>
+				<td>{{ plan }}</td>
+				<td>{{ plan.description }}</td>
+				<td>{{ plan.terms }}</td>
+				<td>${{ plan.price }}</td>
+				<td>{% if plan.duration %}{{ plan.duration }} {{ plan.duration_units}}{% else %}Forever!{% endif %}</td>
+				<td>{{ plan.feature_level }}</td>
+	    	</tr>
+	    {% endfor %}
+	</table>
+{% else %}
+	<p>There are currently no subscription plans for this site.</p>
 {% endif %}
 
-Available plans:
-<ul>
-	{% for plan in plans %}
-		<li>
-			{% ifequal current_user_subscription.plan plan %}
-				<strong>{{ plan }}</strong>
-			{% else %}
-				<a href="https://spreedly.com/{{ site }}/subscribers/{{ user.id }}/subscribe/{{ object.speedly_id }}/{{ user.username }}?email={{ user.email }}&amp;first_name={{ user.first_name }}&amp;last_name={{ user.last_name }}" title="Subscribe to {{ object }}">{{ object }}</a>
-			{% endifequal %}
-			:: {{ plan.description }} :: {{ plan.terms }} :: ${{ plan.price }} :: {{ plan.duration }} :: {{ plan.feature_level }}
-    	</li>
-    {% endfor %}
-</ul>
+
+
+{% if request.user.is_authenticated %}
+	Change or update your subscription settings <a href="{% existing_plan_url user %}">here</a>
+{% else %}
+	<h3>Subscribe</h3>
+	<form action="." method="post">
+		{{ form.as_table }}
+		<p><input type="submit" value="Continue &rarr;"></p>
+	</form>
+{% endif %}
