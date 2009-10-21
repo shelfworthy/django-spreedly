@@ -43,8 +43,9 @@ class SubscriptionManager(models.Manager):
 
 class Subscription(models.Model):
     user = models.OneToOneField('auth.User', primary_key=True)
-    plan = models.ForeignKey(Plan)
-    token = models.CharField(max_length=100)
+    plan = models.CharField(max_length=100, blank=True)
+    date_expiration = models.DateTimeField(blank=True, null=True)
+    token = models.CharField(max_length=100, blank=True)
     
     eligible_for_free_trial = models.BooleanField(default=False)
     lifetime_subscription = models.BooleanField(default=False)

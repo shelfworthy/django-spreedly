@@ -52,6 +52,7 @@ class subscribeForm(forms.Form):
     def save(self):
         user = User.objects.get(username=self.cleaned_data["username"])
         user.set_password(self.cleaned_data["password2"])
+        user.save()
         
         return 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_username)s?email=%(user_email)s&return_url=%(return_url)s' % {
             'site_name': settings.SPREEDLY_SITE_NAME,
@@ -59,5 +60,5 @@ class subscribeForm(forms.Form):
             'user_id': user.id,
             'user_username': user.username,
             'user_email': user.email,
-            'return_url': '%s/%s?user_id=%s' % (Site.objects.get(id=settings.SITE_ID), reverse('spreedly_return'), user.id)
+            'return_url': 'http://%s%s?user_id=%s' % (Site.objects.get(id=settings.SITE_ID), reverse('spreedly_return'), user.id)
         }

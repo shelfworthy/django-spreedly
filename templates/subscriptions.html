@@ -2,7 +2,7 @@
 <h1>Subscriptions</h1>
 <h2>
 	{% if current_user_subscription %}
-    	Your current subscription is {{ current_user_subscription }} and its currently {% if current_user_subscription.active %}Active{% else %}not Active{% endif %}.
+    	Your current subscription is '{{ current_user_subscription.plan }}' and its currently {% if current_user_subscription.active %}Active{% else %}not Active{% endif %}.
 	{% else %}
 		You don't currently have a subscription with this site.
 	{% endif %}
@@ -26,8 +26,6 @@
 {% else %}
 	<p>There are currently no subscription plans for this site.</p>
 {% endif %}
-
-
 
 {% if request.user.is_authenticated %}
 	Change or update your subscription settings <a href="{% existing_plan_url user %}">here</a>

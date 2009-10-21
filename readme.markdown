@@ -34,11 +34,11 @@ Installation
 
 	# this string will be used as the url for returning users from spreedly.
 	# this defaults to 'thanks'
-	SPREEDLY_RETURN_URL = '/welcome'
+	SPREEDLY_RETURN_URL = '/welcome/'
 
 	# the base subscription url (where users will be redirected when their subscriptions expire)
 	# this defaults to '/subscriptions' if you don't add a value to your settings.
-	SUBSCRIPTIONS_URL ='/register'
+	SUBSCRIPTIONS_URL ='/register/'
 
 	# If you want to use your own subscription list page template:
 	# this defaults to 'subscriptions/templates/subscriptions.html'
@@ -50,12 +50,12 @@ Installation
 	
 	# URL paths that a user without a subscription can vist without being redirected to the subscription list:
 	# these can be single pages ('/some/page/') of full directories ('/directory')
-	SUBSCRIPTIONS_ALLOWED_PATHS = ['/', '/some/page/']
+	SUBSCRIPTIONS_ALLOWED_PATHS = ['/login', '/logout']
 
 3) Add the following to urlpatterns in `urls.py`:
 
 	import subscriptions.settings as subscription_settings
-	(r'^%s/' % subscription_settings.SUBSCRIPTIONS_URL[1:], include('subscriptions.urls')),
+	(r'^%s' % subscription_settings.SUBSCRIPTIONS_URL[1:], include('subscriptions.urls')),
 
 4) Run syncdb
 

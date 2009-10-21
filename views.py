@@ -58,7 +58,7 @@ def spreedly_return(request):
         
         client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
         data = client.get_info(user.id)
-
+        
         subscription, created = Subscription.objects.get_or_create(
             user=user
         )
@@ -70,13 +70,13 @@ def spreedly_return(request):
             user.is_active=True
             user.save()
         
-        context = {
-            'subscription': subscription,
-            'request': request,
-        }
         return render_to_response(
             subscription_settings.SUBSCRIPTIONS_RETURN_TEMPLATE,
-            context_instance=context
+            {
+                'subscription': subscription,
+                'request': request,
+                'login_url': settings.LOGIN_URL
+            }
         )
     raise Http404
 
