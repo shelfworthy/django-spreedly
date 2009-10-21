@@ -50,8 +50,8 @@ class Subscription(models.Model):
     date_expiration = models.DateTimeField(blank=True, null=True)
     token = models.CharField(max_length=100, blank=True)
     
-    eligible_for_free_trial = models.BooleanField(default=False)
-    lifetime_subscription = models.BooleanField(default=False)
+    trial_elegible = models.BooleanField(default=False)
+    lifetime = models.BooleanField(default=False)
     active = models.BooleanField(default=False)
     card_expires_before_next_auto_renew = models.BooleanField(default=False)
     

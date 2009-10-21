@@ -15,9 +15,14 @@
 		</h2>
 
 		{% if request.user.is_authenticated %}
-		<h3>
-			<a href="{% existing_plan_url user %}">Change or update your subscription settings</a>{% endif %}
-		</h3>
+			<h3>
+				{% if current_user_subscription.lifetime %}
+					You have a lifetime subscription! You'll never have to pay or update :)
+				{% else %}
+					<a href="{% existing_plan_url user %}">Change or update your subscription settings</a>
+				{% endif %}
+			</h3>
+		{% endif %}
 
 
 		{% if plans %}
@@ -26,7 +31,10 @@
 				<tr><th>Plan</th><th>Description</th><th>Terms</th><th>Price</th><th>Duration</th><th>Feature Level</th></tr>
 				{% for plan in plans %}
 					<tr>
-						<td>{{ plan }}</td>
+						<td>
+							{{ plan }}
+							{% if current_user_subscription and not current_user_subscription.lifetime %}<a href="{% new_plan_url plan request.user %}">[Switch to this plan]</a>{% endif %}
+						</td>
 						<td>{{ plan.description }}</td>
 						<td>{{ plan.terms }}</td>
 						<td>${{ plan.price }}</td>

@@ -5,6 +5,12 @@
 	</head>
 	<body>
 		<h1>Thanks for getting a {{ subscription.plan }} subscription!</h1>
-		<h2>Please Login <a href="{{ login_url }}">here</a></h2>
+		<h2>
+			{% if request.user.is_authenticated %}
+				<h2>Go <a href="/">Home</a>.
+			{% else %}
+				Please Login <a href="{{ login_url }}">here</a>
+			{% endif %}
+		</h2>
 	</body>
 </html>

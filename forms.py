@@ -1,11 +1,10 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from spreedly.models import Plan
+from spreedly.functions import subscription_url
 
 class subscribeForm(forms.Form):
     username = forms.CharField(
@@ -54,11 +53,4 @@ class subscribeForm(forms.Form):
         user.set_password(self.cleaned_data["password2"])
         user.save()
         
-        return 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_username)s?email=%(user_email)s&return_url=%(return_url)s' % {
-            'site_name': settings.SPREEDLY_SITE_NAME,
-            'plan_id': self.cleaned_data["subscription"].pk,
-            'user_id': user.id,
-            'user_username': user.username,
-            'user_email': user.email,
-            'return_url': 'http://%s%s?user_id=%s' % (Site.objects.get(id=settings.SITE_ID), reverse('spreedly_return'), user.id)
-        }
+        return subscription_url(self.cleaned_data["subscription"], user)

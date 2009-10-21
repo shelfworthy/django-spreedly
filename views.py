@@ -59,7 +59,7 @@ def spreedly_return(request):
         
         client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
         data = client.get_info(user.id)
-        
+        print data
         subscription, created = Subscription.objects.get_or_create(
             user=user
         )

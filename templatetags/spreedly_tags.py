@@ -1,6 +1,8 @@
 from django.conf import settings
 from django import template
 
+from spreedly.functions import subscription_url
+
 register = template.Library()
 
 @register.simple_tag
@@ -9,3 +11,7 @@ def existing_plan_url(user):
         'site_name': settings.SPREEDLY_SITE_NAME,
         'user_token': user.subscription.token
     }
+
+@register.simple_tag
+def new_plan_url(plan, user):
+    return subscription_url(plan, user)
