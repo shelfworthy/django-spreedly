@@ -34,6 +34,13 @@ class Plan(models.Model):
     def __unicode__(self):
         return self.name
 
+class SubscriptionManager(models.Manager):
+    def has_active(self, user):
+        '''
+        Determine if given user has active subscription
+        '''
+        return self.model.objects.filter(user=user, active=True).count()
+
 class Subscription(models.Model):
     user = models.OneToOneField('auth.User', primary_key=True)
     plan = models.ForeignKey(Plan)
@@ -43,6 +50,8 @@ class Subscription(models.Model):
     lifetime_subscription = models.BooleanField(default=False)
     active = models.BooleanField(default=False)
     card_expires_before_next_auto_renew = models.BooleanField(default=False)
+    
+    objects = SubscriptionManager()
     
     def __unicode__(self):
         return u'Subscription for %s' % self.user

@@ -28,8 +28,13 @@ Installation
 
 	SPREEDLY_AUTH_TOKEN = 'your auth token'
 	SPREEDLY_SITE_NAME = 'your site name'
+	SITE_URL = 'http://www.yoursitesurl.com'
 
 3) The following can also be added, they are optional:
+
+	# this string will be used as the url for returning users from spreedly.
+	# this defaults to 'thanks'
+	SPREEDLY_RETURN_URL = '/welcome'
 
 	# the base subscription url (where users will be redirected when their subscriptions expire)
 	# this defaults to '/subscriptions' if you don't add a value to your settings.
