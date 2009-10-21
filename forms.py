@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from spreedly.models import Plan
-from spreedly.functions import subscription_url
+from spreedly.functions import subscription_url, free_trial, return_url
+import spreedly.settings as spreedly_settings
 
 class subscribeForm(forms.Form):
     username = forms.CharField(
@@ -52,5 +53,10 @@ class subscribeForm(forms.Form):
         user = User.objects.get(username=self.cleaned_data["username"])
         user.set_password(self.cleaned_data["password2"])
         user.save()
+        plan = self.cleaned_data["subscription"]
         
-        return subscription_url(self.cleaned_data["subscription"], user)
+        trial = free_trial(plan, user)
+        if trial:
+            return return_url(user)
+        else:
+            return subscription_url(plan, user)

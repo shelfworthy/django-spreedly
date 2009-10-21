@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.conf import settings
 
 from spreedly.pyspreedly.api import Client
-from spreedly.functions import sync_plans
+from spreedly.functions import sync_plans, get_subscription
 from spreedly.models import Plan, Subscription
 import spreedly.settings as spreedly_settings
 from spreedly.forms import subscribeForm
@@ -57,19 +57,7 @@ def spreedly_return(request):
         user_id = request.GET['user_id']
         user = User.objects.get(id=user_id)
         
-        client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
-        data = client.get_info(user.id)
-        print data
-        subscription, created = Subscription.objects.get_or_create(
-            user=user
-        )
-        for k, v in data.items():
-            if hasattr(subscription, k):
-                setattr(subscription, k, v)
-        subscription.save()
-        if subscription.active:
-            user.is_active=True
-            user.save()
+        subscription = get_subscription(user)
         
         return render_to_response(
             spreedly_settings.SUBSCRIPTIONS_RETURN_TEMPLATE,
