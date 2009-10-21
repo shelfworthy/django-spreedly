@@ -60,6 +60,12 @@ class Subscription(models.Model):
     def __unicode__(self):
         return u'Subscription for %s' % self.user
     
+    def save(self, *args, **kwargs):
+        if self.active and not self.user.is_active:
+            self.user.is_active = True
+            self.user.save()
+        super(Subscription, self).save(*args, **kwargs)
+    
     @property
     def subscription_status(self):
         '''gets the status based on current active status and date_expiration'''

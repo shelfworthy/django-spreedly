@@ -1,9 +1,9 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 
 from spreedly.models import Plan, Subscription
 from spreedly.pyspreedly.api import Client
-import spreedly.settings as spreedly_settings
 
 def sync_plans():
     '''
@@ -33,29 +33,33 @@ def get_subscription(user):
         if hasattr(subscription, k):
             setattr(subscription, k, v)
     subscription.save()
-    if subscription.active:
-        user.is_active=True
-        user.save()
     return subscription
 
-def free_trial(plan, user):
-    if plan.plan_type == 'free_trial':
-        try:
-            # make sure the user is trial eligable (they don't have a subscription yet, or they are trial_elegible)
-            not_allowed = Subscription.objects.get(user=user, trial_elegible=False)
-            return False
-        except Subscription.DoesNotExist:
-            pass
-        
+def check_trial_eligibility(plan, user):
+    if plan.plan_type != 'free_trial':
+        return False
+    try:
+        # make sure the user is trial eligable (they don't have a subscription yet, or they are trial_elegible)
+        not_allowed = Subscription.objects.get(user=user, trial_elegible=False)
+        return False
+    except Subscription.DoesNotExist:
+        return True
+
+def start_free_trial(plan, user):
+    if check_trial_eligibility(plan, user):
         client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
+        client.get_or_create_subscriber(user.id, user.username)
         client.subscribe(user.id, plan.pk, trial=True)
         get_subscription(user)
         return True
     else:
         return False
 
-def return_url(user):
-    return 'http://%s%s?user_id=%s' % (Site.objects.get(id=settings.SITE_ID), spreedly_settings.SPREEDLY_RETURN_URL, user.id)
+def return_url(plan, user, trial=False):
+    url = 'http://%s%s' % (Site.objects.get(id=settings.SITE_ID), reverse('spreedly_return', args=[user.id, plan.pk]))
+    if trial:
+        url = url + '?trial=true'
+    return url
 
 def subscription_url(plan, user):
     return 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_username)s?email=%(user_email)s&return_url=%(return_url)s' % {
@@ -64,5 +68,5 @@ def subscription_url(plan, user):
         'user_id': user.id,
         'user_username': user.username,
         'user_email': user.email,
-        'return_url': return_url(user)
+        'return_url': return_url(plan, user)
     }

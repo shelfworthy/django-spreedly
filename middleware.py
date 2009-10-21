@@ -12,17 +12,17 @@ class SpreedlyMiddleware(object):
     '''
     def process_request(self, request):
         allowed = False
-        for path in spreedly_settings.SUBSCRIPTIONS_ALLOWED_PATHS + [spreedly_settings.SUBSCRIPTIONS_URL, settings.LOGIN_URL]:
+        for path in spreedly_settings.SPREEDLY_ALLOWED_PATHS + [spreedly_settings.SPREEDLY_URL, settings.LOGIN_URL]:
             if request.path.startswith(path):
                 allowed = True
         
         if not allowed:
             if not request.user.is_authenticated():
-                if spreedly_settings.SUBSCRIPTIONS_USERS_ONLY:
-                    if spreedly_settings.SEND_ANONYMOUS_TO_LOGIN:
+                if spreedly_settings.SPREEDLY_USERS_ONLY:
+                    if spreedly_settings.SPREEDLY_ANONYMOUS_SHOULD_LOGIN:
                         return HttpResponseRedirect(settings.LOGIN_URL)
-                    return HttpResponseRedirect(spreedly_settings.SUBSCRIPTIONS_URL)
+                    return HttpResponseRedirect(spreedly_settings.SPREEDLY_URL)
             elif request.user.is_authenticated() \
                 and not Subscription.objects.has_active(request.user):
-                    return HttpResponseRedirect(spreedly_settings.SUBSCRIPTIONS_URL)
+                    return HttpResponseRedirect(spreedly_settings.SPREEDLY_URL)
         return

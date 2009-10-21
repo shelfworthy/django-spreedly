@@ -1,22 +1,32 @@
 from django.conf import settings
+from django.contrib.sites.models import Site
 
 # The URL that users get sent back to after visiting spreedly
 SPREEDLY_RETURN_URL = getattr(settings, 'SPREEDLY_RETURN_URL', '/thanks/')
 
 # The base URL for all spreedly related pages
-SUBSCRIPTIONS_URL = getattr(settings, 'SUBSCRIPTIONS_URL', '/subscriptions/')
+SPREEDLY_URL = getattr(settings, 'SPREEDLY_URL', '/subscriptions/')
 
 # The template that should be used for subscription listing and signup
-SUBSCRIPTIONS_LIST_TEMPLATE = getattr(settings, 'SUBSCRIPTIONS_LIST_TEMPLATE', 'subscriptions.html')
+SPREEDLY_LIST_TEMPLATE = getattr(settings, 'SPREEDLY_LIST_TEMPLATE', 'subscriptions.html')
 
 # The template that should be used to show a user returning to your site from spreedly their new subscription status
-SUBSCRIPTIONS_RETURN_TEMPLATE = getattr(settings, 'SUBSCRIPTIONS_RETURN_TEMPLATE', 'thanks.html')
+SPREEDLY_RETURN_TEMPLATE = getattr(settings, 'SPREEDLY_RETURN_TEMPLATE', 'thanks.html')
 
 # lock out your entire site (except for spreedly URLs and the paths below) to non-subscribed users?
-SUBSCRIPTIONS_USERS_ONLY = getattr(settings, 'SUBSCRIPTIONS_USERS_ONLY', False)
+SPREEDLY_USERS_ONLY = getattr(settings, 'SPREEDLY_USERS_ONLY', False)
 
 # Paths that a user can visit without a subscription 
-SUBSCRIPTIONS_ALLOWED_PATHS = getattr(settings, 'SUBSCRIPTIONS_ALLOWED_PATHS', [])
+SPREEDLY_ALLOWED_PATHS = getattr(settings, 'SPREEDLY_ALLOWED_PATHS', [])
 
 # Should anonymous users be sent to the login screen or the subscription screen?
-SEND_ANONYMOUS_TO_LOGIN = getattr(settings, 'SEND_ANONYMOUS_TO_LOGIN', True)
+SPREEDLY_ANONYMOUS_SHOULD_LOGIN = getattr(settings, 'SPREEDLY_ANONYMOUS_SHOULD_LOGIN', True)
+
+# the template to use for the confirmation email
+SPREEDLY_CONFIRM_EMAIL = getattr(settings, 'SPREEDLY_CONFIRM_EMAIL', 'confirm_email.txt')
+
+# the subject for the confirmation email
+SPREEDLY_CONFIRM_EMAIL_SUBJECT = getattr(settings, 'SPREEDLY_CONFIRM_EMAIL_SUBJECT', 'complete your subscription to %s' % Site.objects.get(id=settings.SITE_ID).name)
+
+# This template will be used after a user has signed up on your site and a confirm email has been sent to them
+SPREEDLY_EMAIL_SENT_TEMPLATE = getattr(settings, 'SPREEDLY_EMAIL_SENT_TEMPLATE', 'email_sent.html')

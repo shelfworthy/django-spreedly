@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.conf import settings
 
 from spreedly.pyspreedly.api import Client
-from spreedly.functions import sync_plans, get_subscription
+from spreedly.functions import sync_plans, get_subscription, start_free_trial
 from spreedly.models import Plan, Subscription
 import spreedly.settings as spreedly_settings
 from spreedly.forms import subscribeForm
@@ -47,27 +47,43 @@ def plan_list(request, extra_context=None, **kwargs):
     for key, value in our_context.items():
         context[key] = callable(value) and value() or value
     return render_to_response(
-        spreedly_settings.SUBSCRIPTIONS_LIST_TEMPLATE,
+        spreedly_settings.SPREEDLY_LIST_TEMPLATE,
         kwargs,
         context_instance=context
     )
 
-def spreedly_return(request):
-    if request.GET.has_key('user_id'):
-        user_id = request.GET['user_id']
+def email_sent(request, user_id):
+    try:
         user = User.objects.get(id=user_id)
-        
-        subscription = get_subscription(user)
-        
-        return render_to_response(
-            spreedly_settings.SUBSCRIPTIONS_RETURN_TEMPLATE,
-            {
-                'subscription': subscription,
-                'request': request,
-                'login_url': settings.LOGIN_URL
-            }
-        )
-    raise Http404
+    except User.DoesNotExist:
+        raise Http404
+    
+    return render_to_response(
+        spreedly_settings.SPREEDLY_EMAIL_SENT_TEMPLATE, {
+            'request': request,
+            'user': user
+        }
+    )
+
+def spreedly_return(request, user_id, plan_pk):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise Http404
+    
+    if request.GET.has_key('trial'):
+        plan = Plan.objects.get(pk=plan_pk)
+        start_free_trial(plan, user)
+    
+    subscription = get_subscription(user)
+    
+    return render_to_response(
+        spreedly_settings.SPREEDLY_RETURN_TEMPLATE, {
+            'subscription': subscription,
+            'request': request,
+            'login_url': settings.LOGIN_URL
+        }
+    )
 
 def spreedly_listener(request):
     if request.method == 'POST':

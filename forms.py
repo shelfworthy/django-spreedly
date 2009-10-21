@@ -1,10 +1,14 @@
 from django import forms
 from django.conf import settings
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from spreedly.models import Plan
-from spreedly.functions import subscription_url, free_trial, return_url
+from spreedly.functions import subscription_url, check_trial_eligibility, return_url
 import spreedly.settings as spreedly_settings
 
 class subscribeForm(forms.Form):
@@ -37,26 +41,39 @@ class subscribeForm(forms.Form):
             if pass1 != pass2:
                 raise forms.ValidationError(_("You must type the same password each time."))
             
-            user, created = User.objects.get_or_create(username=username, defaults={
+            user, created = User.objects.get_or_create(username=username.lower(), defaults={
                 'email': email,
                 'is_active': False
             })
             
-            if not created:
-                if user.is_active:
-                    raise forms.ValidationError(_("Sorry, This username is already taken."))
-                elif user.email != email:
-                    raise forms.ValidationError(_("Sorry, This username is already linked to a different email address. If you started signing up with this username in the past, please use the same e-mail you used last time."))
+            if not created and user.is_active:
+                raise forms.ValidationError(_("Sorry, This username is already taken."))
+            elif not created:
+                user.email = email
+                user.save()
         return self.cleaned_data
     
     def save(self):
-        user = User.objects.get(username=self.cleaned_data["username"])
+        user = User.objects.get(username=self.cleaned_data["username"].lower())
         user.set_password(self.cleaned_data["password2"])
         user.save()
         plan = self.cleaned_data["subscription"]
         
-        trial = free_trial(plan, user)
+        trial = check_trial_eligibility(plan, user)
         if trial:
-            return return_url(user)
+            url = return_url(plan, user, trial=True)
         else:
-            return subscription_url(plan, user)
+            url = subscription_url(plan, user)
+        
+        send_mail(
+            spreedly_settings.SPREEDLY_CONFIRM_EMAIL_SUBJECT,
+            render_to_string(spreedly_settings.SPREEDLY_CONFIRM_EMAIL, {
+                'plan': plan,
+                'user': user,
+                'site': Site.objects.get(id=settings.SITE_ID),
+                'spreedly_url': url
+            }),
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email,]
+        )
+        return reverse('spreedly_email_sent', args=[user.id])

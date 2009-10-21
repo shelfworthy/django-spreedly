@@ -46,24 +46,36 @@ Installation
 3) The following can also be added, they are optional:
 
 	# this string will be used as the url for returning users from spreedly.
-	# this defaults to 'thanks'
+	# this defaults to '/thanks/'
 	SPREEDLY_RETURN_URL = '/welcome/'
 
 	# the base subscription url (where users will be redirected when their subscriptions expire)
-	# this defaults to '/subscriptions' if you don't add a value to your settings.
-	SUBSCRIPTIONS_URL ='/register/'
+	# this defaults to '/subscriptions/' if you don't add a value to your settings.
+	SPREEDLY_URL ='/register/'
 
 	# If you want to use your own subscription list page template:
 	# this defaults to 'subscriptions/templates/spreedly.html'
-	SUBSCRIPTIONS_LIST_TEMPLATE = 'path/to/your/template.html'
+	SPREEDLY_LIST_TEMPLATE = 'path/to/your/template.html'
 
 	# if you want to restrict access to your entire site based to only users with an active subscription
 	# this defaults to False
-	SUBSCRIPTIONS_USERS_ONLY = True
+	SPREEDLY_USERS_ONLY = True
 	
 	# URL paths that a user without a subscription can vist without being redirected to the subscription list:
 	# these can be single pages ('/some/page/') of full directories ('/directory')
-	SUBSCRIPTIONS_ALLOWED_PATHS = ['/login', '/logout']
+	SPREEDLY_ALLOWED_PATHS = ['/login', '/logout']
+
+	# This template will be used when checking to make sure the user is using a valid email
+	# this default to 'confirm_email.txt' Be sure to include {{ spreedly_url }} in your template
+	SPREEDLY_CONFIRM_EMAIL = 'path/to/your/template.txt'
+
+	# This subject will be used for confirmation emails
+	# this defaults to "'complete your subscription to %s' % Site.object.get(id=settings.SITE_ID).name"
+	SPREEDLY_CONFIRM_EMAIL_SUBJECT = 'This is a new subject'
+
+	# Where a user is directed after signing up.
+	# this defaults to 'email_sent.html'
+	SPREEDLY_EMAIL_SENT_TEMPLATE = 'path/to/your/template.html'
 
 4) Add the middleware to your `settings.py` MIDDLEWARE_CLASSES:
 
@@ -72,7 +84,7 @@ Installation
 5) Add the following to urlpatterns in `urls.py`:
 
 	import spreedly.settings as spreedly_settings
-	(r'^%s' % spreedly_settings.SUBSCRIPTIONS_URL[1:], include('spreedly.urls')),
+	(r'^%s' % spreedly_settings.SPREEDLY_URL[1:], include('spreedly.urls')),
 
 6) Run syncdb
 
@@ -84,10 +96,32 @@ After the app is installed, you can start creating subscriptions!
 The app is designed to work with the following flow:
 
 * new user enters user information and chooses a plan
-* inactive user object is created and the user is sent to spreedly to pay for plan
+* inactive user object is created and the user is sent an email with a link to spreedly to pay for plan
 * after successful payment, user is directed back to your site
 * the app will check with spreedly for users status
 * if the user has an active subscription, the user object will be set to active and the user will be given a login url
 
-If you want to make your site subscription only you can set the SUBSCRIPTIONS_USERS_ONLY to True.
-This will redirect any anonymous user (or user with an inactive subscription) who visits a page not in the SUBSCRIPTIONS_ALLOWED_PATHS list to your SUBSCRIPTIONS_URL
+If you want to make your site subscription only you can set the SPREEDLY_USERS_ONLY to True.
+This will redirect any anonymous user (or user with an inactive subscription) who visits a page not in the SPREEDLY_ALLOWED_PATHS list to your SPREEDLY_URL
+
+Some Important Notes
+--------------------
+
+Spreedly is sent a redirect url that will check and see if the user has signed up and activate their account. **A user may not click on this link** and in that case their account won't be active, unless:
+
+Spreedly will ping a url with subscriptions change, and django-spreedly is setup to listen for this.
+
+in your spreedly setting is the following: 'Subscribers Changed Notification URL'
+
+if you are using the default settings for django-spreedly, the url you should put in this field is:
+
+http://mysite.com/subscriptions/spreedly_listener/
+
+if you changed SPREEDLY_URL, you'll need to substitute that for subscriptions.
+
+If you want to add a fallback, you can also add the following to your login view after a user is logged in (but before you check if they are active):
+
+	from spreedly.functions import get_subscription
+	
+	if not user.is_active:
+		get_subscription(user)
