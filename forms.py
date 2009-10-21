@@ -5,7 +5,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from subscriptions.models import Plan
+from spreedly.models import Plan
 
 class subscribeForm(forms.Form):
     username = forms.CharField(

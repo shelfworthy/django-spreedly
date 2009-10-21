@@ -19,16 +19,16 @@ The app currently covers:
 Installation
 ============
 
-1. Checkout the project into a folder called `subscriptions` on your python path:
+1. Checkout the project into a folder called `spreedly` on your python path:
 
-	git clone git://github.com/chrisdrackett/django-paid-subscriptions.git subscriptions
+	git clone git://github.com/chrisdrackett/django-spreedly.git spreedly
 
 2. Update the submodules (this gets the python tender API wrapper)
 
-	cd subscriptions/
+	cd spreedly/
 	git submodule update --init
 
-2) Add `subscriptions` to your installed apps, and add the following to `settings.py`:
+2) Add `spreedly` to your installed apps, and add the following to `settings.py`:
 
 	SPREEDLY_AUTH_TOKEN = 'your auth token'
 	SPREEDLY_SITE_NAME = 'your site name'
@@ -45,7 +45,7 @@ Installation
 	SUBSCRIPTIONS_URL ='/register/'
 
 	# If you want to use your own subscription list page template:
-	# this defaults to 'subscriptions/templates/subscriptions.html'
+	# this defaults to 'subscriptions/templates/spreedly.html'
 	SUBSCRIPTIONS_LIST_TEMPLATE = 'path/to/your/template.html'
 
 	# if you want to restrict access to your entire site based to only users with an active subscription
@@ -58,12 +58,12 @@ Installation
 
 4) Add the middleware to your `settings.py` MIDDLEWARE_CLASSES:
 
-	'subscriptions.middleware.SubscriptionMiddleware'
+	'spreedly.middleware.SpreedlyMiddleware'
 
 5) Add the following to urlpatterns in `urls.py`:
 
-	import subscriptions.settings as subscription_settings
-	(r'^%s' % subscription_settings.SUBSCRIPTIONS_URL[1:], include('subscriptions.urls')),
+	import spreedly.settings as spreedly_settings
+	(r'^%s' % spreedly_settings.SUBSCRIPTIONS_URL[1:], include('spreedly.urls')),
 
 6) Run syncdb
 

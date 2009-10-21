@@ -5,11 +5,11 @@ from django.template import RequestContext
 from django.core.cache import cache
 from django.conf import settings
 
-from subscriptions.pyspreedly.api import Client
-from subscriptions.functions import sync_plans
-from subscriptions.models import Plan, Subscription
-import subscriptions.settings as subscription_settings
-from subscriptions.forms import subscribeForm
+from spreedly.pyspreedly.api import Client
+from spreedly.functions import sync_plans
+from spreedly.models import Plan, Subscription
+import spreedly.settings as spreedly_settings
+from spreedly.forms import subscribeForm
 
 def plan_list(request, extra_context=None, **kwargs):
     sub = None
@@ -20,7 +20,7 @@ def plan_list(request, extra_context=None, **kwargs):
             pass
     
     # cache the subscription list from spreedly for a day
-    cache_key = 'subscriptions_plans_list'
+    cache_key = 'spreedly_plans_list'
     plans = cache.get(cache_key)
     if not plans:
         sync_plans()
@@ -46,7 +46,7 @@ def plan_list(request, extra_context=None, **kwargs):
     for key, value in our_context.items():
         context[key] = callable(value) and value() or value
     return render_to_response(
-        subscription_settings.SUBSCRIPTIONS_LIST_TEMPLATE,
+        spreedly_settings.SUBSCRIPTIONS_LIST_TEMPLATE,
         kwargs,
         context_instance=context
     )
@@ -71,7 +71,7 @@ def spreedly_return(request):
             user.save()
         
         return render_to_response(
-            subscription_settings.SUBSCRIPTIONS_RETURN_TEMPLATE,
+            spreedly_settings.SUBSCRIPTIONS_RETURN_TEMPLATE,
             {
                 'subscription': subscription,
                 'request': request,
