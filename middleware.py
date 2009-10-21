@@ -12,7 +12,7 @@ class SpreedlyMiddleware(object):
     '''
     def process_request(self, request):
         allowed = False
-        for path in spreedly_settings.SUBSCRIPTIONS_ALLOWED_PATHS + [spreedly_settings.SUBSCRIPTIONS_URL]:
+        for path in spreedly_settings.SUBSCRIPTIONS_ALLOWED_PATHS + [spreedly_settings.SUBSCRIPTIONS_URL, settings.LOGIN_URL]:
             if request.path.startswith(path):
                 allowed = True
         

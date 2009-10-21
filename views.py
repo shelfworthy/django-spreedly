@@ -36,6 +36,7 @@ def plan_list(request, extra_context=None, **kwargs):
     our_context={
         'current_user_subscription': sub,
         'site': settings.SPREEDLY_SITE_NAME,
+        'login': settings.LOGIN_URL,
         'plans': plans,
         'request': request,
         'form': form

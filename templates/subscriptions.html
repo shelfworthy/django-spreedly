@@ -1,38 +1,50 @@
+<!DOCTYPE html>
 {% load spreedly_tags %}
-<h1>Subscriptions</h1>
-<h2>
-	{% if current_user_subscription %}
-    	Your current subscription is '{{ current_user_subscription.plan }}' and its currently {% if current_user_subscription.active %}Active{% else %}not Active{% endif %}.
-	{% else %}
-		You don't currently have a subscription with this site.
-	{% endif %}
-</h2>
+<html>
+	<head>
+		<title>Subscriptions</title>
+	</head>
+	<body>
+		<h1>Subscriptions</h1>
+		<h2>
+			{% if current_user_subscription %}
+		    	Your current subscription is '{{ current_user_subscription.plan }}' and its currently {% if current_user_subscription.active %}Active{% else %}not Active{% endif %}.
+			{% else %}
+				Already have a subscription? <a href="{{ login }}">Log In!</a>
+			{% endif %}
+		</h2>
 
-{% if plans %}
-	<h3>Available plans:</h3>
-	<table>
-		<tr><th>Plan</th><th>Description</th><th>Terms</th><th>Price</th><th>Duration</th><th>Feature Level</th></tr>
-		{% for plan in plans %}
-			<tr>
-				<td>{{ plan }}</td>
-				<td>{{ plan.description }}</td>
-				<td>{{ plan.terms }}</td>
-				<td>${{ plan.price }}</td>
-				<td>{% if plan.duration %}{{ plan.duration }} {{ plan.duration_units}}{% else %}Forever!{% endif %}</td>
-				<td>{{ plan.feature_level }}</td>
-	    	</tr>
-	    {% endfor %}
-	</table>
-{% else %}
-	<p>There are currently no subscription plans for this site.</p>
-{% endif %}
+		{% if request.user.is_authenticated %}
+		<h3>
+			<a href="{% existing_plan_url user %}">Change or update your subscription settings</a>{% endif %}
+		</h3>
 
-{% if request.user.is_authenticated %}
-	Change or update your subscription settings <a href="{% existing_plan_url user %}">here</a>
-{% else %}
-	<h3>Subscribe</h3>
-	<form action="." method="post">
-		{{ form.as_table }}
-		<p><input type="submit" value="Continue &rarr;"></p>
-	</form>
-{% endif %}
+
+		{% if plans %}
+			<h3>Available plans:</h3>
+			<table>
+				<tr><th>Plan</th><th>Description</th><th>Terms</th><th>Price</th><th>Duration</th><th>Feature Level</th></tr>
+				{% for plan in plans %}
+					<tr>
+						<td>{{ plan }}</td>
+						<td>{{ plan.description }}</td>
+						<td>{{ plan.terms }}</td>
+						<td>${{ plan.price }}</td>
+						<td>{% if plan.duration %}{{ plan.duration }} {{ plan.duration_units}}{% else %}Forever!{% endif %}</td>
+						<td>{{ plan.feature_level }}</td>
+			    	</tr>
+			    {% endfor %}
+			</table>
+		{% else %}
+			<p>There are currently no subscription plans for this site.</p>
+		{% endif %}
+
+		{% if not request.user.is_authenticated %}
+			<h3>Subscribe</h3>
+			<form action="." method="post">
+				{{ form.as_table }}
+				<p><input type="submit" value="Continue &rarr;"></p>
+			</form>
+		{% endif %}
+	</body>
+</html>
