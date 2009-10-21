@@ -5,7 +5,7 @@ This app can be used to add support for the [spreedly](https://spreedly.com/) su
 
 **Note** this app is still in development, if you find issues or bugs, please submit them here:
 
-[django-paid-subscriptions issue tracker](http://chrisdrackett.lighthouseapp.com/projects/39822-python-django-spreedly)
+[django-spreedly issue tracker](http://chrisdrackett.lighthouseapp.com/projects/39822-python-django-spreedly)
 
 The app currently covers:
 
