@@ -17,8 +17,10 @@ class SpreedlyMiddleware(object):
                 allowed = True
         
         if not allowed:
-            if not request.user.is_authenticated() \
-                and  spreedly_settings.SUBSCRIPTIONS_USERS_ONLY:
+            if not request.user.is_authenticated():
+                if spreedly_settings.SUBSCRIPTIONS_USERS_ONLY:
+                    if spreedly_settings.SEND_ANONYMOUS_TO_LOGIN:
+                        return HttpResponseRedirect(settings.LOGIN_URL)
                     return HttpResponseRedirect(spreedly_settings.SUBSCRIPTIONS_URL)
             elif request.user.is_authenticated() \
                 and not Subscription.objects.has_active(request.user):
