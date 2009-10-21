@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from models import Plan
+from functions import sync_plans
 
 class TestSubscription(TestCase):
     def setUp(self):
@@ -17,21 +18,7 @@ class TestSubscription(TestCase):
 
     def test_sync_plans(self):
         # Initial sync
-        Plan.objects.sync()
+        spreedly_count = len(self.sclient.get_plans())
+        sync_plans()
         qs = Plan.objects.all()
-        self.assertEquals(qs.count(), 4)
-
-        # Lets simulate a situation when some plan was changed.
-        # We change it locally to cheat the system.
-        p = qs[0]
-        p.name = 'New Plan'
-        p.save()
-        Plan.objects.sync()
-        qs = Plan.objects.all()
-        self.assertEquals(qs.count(), 4)
-        p = qs[0]
-        self.assertEquals(p.name, 'Plan') # It should be 'Subscription' again
-
-    def test_changes(self):
-        response = self.client.post('/subscription/changes/', {'subscriber_ids': '1,2'})
-        print response
+        self.assertEquals(qs.count(), spreedly_count)
