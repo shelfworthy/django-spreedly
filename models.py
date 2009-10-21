@@ -42,7 +42,7 @@ class SubscriptionManager(models.Manager):
         '''
         Determine if given user has active subscription
         '''
-        return self.model.objects.filter(user=user, active=True).filter(Q(date_expiration__lt=datetime.today())|Q(date_expiration__isnull=True)).count()
+        return self.model.objects.filter(user=user, active=True).filter(Q(date_expiration__gt=datetime.today())|Q(date_expiration__isnull=True)).count()
 
 class Subscription(models.Model):
     user = models.OneToOneField('auth.User', primary_key=True)
@@ -59,3 +59,10 @@ class Subscription(models.Model):
     
     def __unicode__(self):
         return u'Subscription for %s' % self.user
+    
+    @property
+    def subscription_status(self):
+        '''gets the status based on current active status and date_expiration'''
+        if self.active and (self.date_expiration > datetime.today() or date_expiration == None):
+            return True
+        return False
