@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.db import models
+from django.db.models import Q
 
 class Plan(models.Model):
     '''
@@ -39,7 +42,7 @@ class SubscriptionManager(models.Manager):
         '''
         Determine if given user has active subscription
         '''
-        return self.model.objects.filter(user=user, active=True).count()
+        return self.model.objects.filter(user=user, active=True).filter(Q(date_expiration__lt=datetime.today())|Q(date_expiration__isnull=True)).count()
 
 class Subscription(models.Model):
     user = models.OneToOneField('auth.User', primary_key=True)
