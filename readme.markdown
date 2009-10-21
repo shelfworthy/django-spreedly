@@ -1,7 +1,11 @@
 Info
 ====
 
-This app can be used to add support for [spreedly](https://spreedly.com/) to your django app.
+This app can be used to add support for the [spreedly](https://spreedly.com/) subscription service to your django app.
+
+**Note** this app is still in development, if you find issues or bugs, please submit them here:
+
+[django-paid-subscriptions issue tracker](http://chrisdrackett.lighthouseapp.com/projects/39822-python-django-spreedly)
 
 The app currently covers:
 
@@ -52,17 +56,29 @@ Installation
 	# these can be single pages ('/some/page/') of full directories ('/directory')
 	SUBSCRIPTIONS_ALLOWED_PATHS = ['/login', '/logout']
 
-3) Add the following to urlpatterns in `urls.py`:
+4) Add the middleware to your `settings.py` MIDDLEWARE_CLASSES:
+
+	'subscriptions.middleware.SubscriptionMiddleware'
+
+5) Add the following to urlpatterns in `urls.py`:
 
 	import subscriptions.settings as subscription_settings
 	(r'^%s' % subscription_settings.SUBSCRIPTIONS_URL[1:], include('subscriptions.urls')),
 
-4) Run syncdb
+6) Run syncdb
 
-----
+Use
+===
 
-If you want to make your site subscription only:
+After the app is installed, you can start creating subscriptions!
 
-use SubscriptionMiddleware and the following settings:
+The app is designed to work with the following flow:
 
+* new user enters user information and chooses a plan
+* inactive user object is created and the user is sent to spreedly to pay for plan
+* after successful payment, user is directed back to your site
+* the app will check with spreedly for users status
+* if the user has an active subscription, the user object will be set to active and the user will be given a login url
 
+If you want to make your site subscription only you can set the SUBSCRIPTIONS_USERS_ONLY to True.
+This will redirect any anonymous user (or user with an inactive subscription) who visits a page not in the SUBSCRIPTIONS_ALLOWED_PATHS list to your SUBSCRIPTIONS_URL
