@@ -8,7 +8,7 @@
 		<h1>Subscriptions</h1>
 		<h2>
 			{% if current_user_subscription %}
-		    	Your current subscription is '{{ current_user_subscription.plan }}' and its currently {% if current_user_subscription.active %}Active{% else %}not Active{% endif %}.
+		    	Your current subscription is '{{ current_user_subscription.plan_name }}' and its currently {% if current_user_subscription.active %}Active{% else %}not Active{% endif %}.
 			{% else %}
 				Already have a subscription? <a href="{{ login }}">Log In!</a>
 			{% endif %}

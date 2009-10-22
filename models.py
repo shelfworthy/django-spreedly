@@ -49,7 +49,8 @@ class SubscriptionManager(models.Manager):
 
 class Subscription(models.Model):
     user = models.OneToOneField('auth.User', primary_key=True)
-    plan = models.CharField(max_length=100, blank=True)
+    plan_name = models.CharField(max_length=100, blank=True)
+    feature_level = models.CharField(max_length=100, blank=True)
     date_expiration = models.DateTimeField(blank=True, null=True)
     token = models.CharField(max_length=100, blank=True)
     
@@ -68,9 +69,6 @@ class Subscription(models.Model):
             self.user.is_active = True
             self.user.save()
         super(Subscription, self).save(*args, **kwargs)
-    
-    def get_plan_object(self):
-        return Plan.objects.get(name=self.plan)
     
     @property
     def subscription_status(self):
