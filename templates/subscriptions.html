@@ -40,8 +40,8 @@
 						<td>${{ plan.price }}</td>
 						<td>{% if plan.duration %}{{ plan.duration }} {{ plan.duration_units}}{% else %}Forever!{% endif %}</td>
 						<td>{{ plan.feature_level }}</td>
-			    	</tr>
-			    {% endfor %}
+					</tr>
+				{% endfor %}
 			</table>
 		{% else %}
 			<p>There are currently no subscription plans for this site.</p>

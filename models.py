@@ -35,7 +35,7 @@ class Plan(models.Model):
     speedly_site_id = models.IntegerField(db_index=True, null=True)
 
     class Meta:
-        ordering = ['duration']
+        ordering = ['plan_type', 'price']
 
     def __unicode__(self):
         return self.name
