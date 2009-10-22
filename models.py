@@ -26,7 +26,7 @@ class Plan(models.Model):
     
     return_url = models.URLField(blank=True)
     
-    date_created = models.DateTimeField(editable=False, null=True)
+    created_at = models.DateTimeField(editable=False, null=True)
     date_changed = models.DateTimeField(editable=False, null=True)
     
     version = models.IntegerField(blank=True, default=1)
@@ -45,18 +45,22 @@ class SubscriptionManager(models.Manager):
         '''
         Determine if given user has active subscription
         '''
-        return self.model.objects.filter(user=user, active=True).filter(Q(date_expiration__gt=datetime.today())|Q(date_expiration__isnull=True)).count()
+        return self.model.objects.filter(user=user, active=True).filter(Q(active_until__gt=datetime.today())|Q(active_until__isnull=True)).count()
 
 class Subscription(models.Model):
     user = models.OneToOneField('auth.User', primary_key=True)
+    first_name = models.CharField(blank=True, max_length=100)
+    last_name = models.CharField(blank=True, max_length=100)
     plan_name = models.CharField(max_length=100, blank=True)
     feature_level = models.CharField(max_length=100, blank=True)
-    date_expiration = models.DateTimeField(blank=True, null=True)
+    active_until = models.DateTimeField(blank=True, null=True)
     token = models.CharField(max_length=100, blank=True)
     
     trial_elegible = models.BooleanField(default=False)
     lifetime = models.BooleanField(default=False)
+    recurring = models.BooleanField(default=False)
     active = models.BooleanField(default=False)
+    
     card_expires_before_next_auto_renew = models.BooleanField(default=False)
     
     objects = SubscriptionManager()
@@ -72,7 +76,7 @@ class Subscription(models.Model):
     
     @property
     def subscription_status(self):
-        '''gets the status based on current active status and date_expiration'''
-        if self.active and (self.date_expiration > datetime.today() or date_expiration == None):
+        '''gets the status based on current active status and active_until'''
+        if self.active and (self.active_until > datetime.today() or active_until == None):
             return True
         return False
