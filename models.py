@@ -69,6 +69,9 @@ class Subscription(models.Model):
             self.user.save()
         super(Subscription, self).save(*args, **kwargs)
     
+    def get_plan_object(self):
+        return Plan.objects.get(name=self.plan)
+    
     @property
     def subscription_status(self):
         '''gets the status based on current active status and date_expiration'''
