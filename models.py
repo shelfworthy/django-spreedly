@@ -33,7 +33,10 @@ class Plan(models.Model):
     
     speedly_id = models.IntegerField(db_index=True, primary_key=True)
     speedly_site_id = models.IntegerField(db_index=True, null=True)
-    
+
+    class Meta:
+        ordering = ['duration']
+
     def __unicode__(self):
         return self.name
 
