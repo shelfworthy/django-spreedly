@@ -28,9 +28,10 @@
 		{% if plans %}
 			<h3>Available plans:</h3>
 			<table>
-				<tr><th>Plan</th><th>Description</th><th>Terms</th><th>Price</th><th>Duration</th><th>Feature Level</th></tr>
+				<tr><th>Plan Type</th><th>Plan</th><th>Description</th><th>Terms</th><th>Price</th><th>Duration</th><th>Feature Level</th></tr>
 				{% for plan in plans %}
 					<tr>
+						<th>{% ifchanged %}{{ plan.plan_type_display }}{% endifchanged %}</th>
 						<td>
 							{{ plan }}
 							{% if current_user_subscription and not current_user_subscription.lifetime %}<a href="{% new_plan_url plan request.user %}">[Switch to this plan]</a>{% endif %}

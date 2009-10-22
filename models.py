@@ -33,12 +33,16 @@ class Plan(models.Model):
     
     speedly_id = models.IntegerField(db_index=True, primary_key=True)
     speedly_site_id = models.IntegerField(db_index=True, null=True)
-
+    
     class Meta:
         ordering = ['plan_type', 'price']
-
+    
     def __unicode__(self):
         return self.name
+    
+    @property
+    def plan_type_display(self):
+        return self.plan_type.replace('_',' ').title()
 
 class SubscriptionManager(models.Manager):
     def has_active(self, user):
