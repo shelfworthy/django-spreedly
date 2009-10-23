@@ -34,15 +34,31 @@ class Plan(models.Model):
     speedly_id = models.IntegerField(db_index=True, primary_key=True)
     speedly_site_id = models.IntegerField(db_index=True, null=True)
     
+    order = models.PositiveIntegerField(null=True)
+    
     class Meta:
-        ordering = ['plan_type', 'price']
+        ordering = ['order', 'price']
     
     def __unicode__(self):
         return self.name
     
+    def save(self, *args, **kwargs):
+        # order the items logically
+        if self.plan_type == 'free_trial':
+            self.order = 1
+        if self.plan_type == 'regular':
+            self.order = 2
+        if self.plan_type == 'gift':
+            self.order = 3
+        super(Plan, self).save(*args, **kwargs)
+    
     @property
     def plan_type_display(self):
         return self.plan_type.replace('_',' ').title()
+    
+    @property
+    def is_gift_plan(self):
+        return self.plan_type == "gift"
 
 class SubscriptionManager(models.Manager):
     def has_active(self, user):
@@ -52,10 +68,11 @@ class SubscriptionManager(models.Manager):
         return self.model.objects.filter(user=user, active=True).filter(Q(active_until__gt=datetime.today())|Q(active_until__isnull=True)).count()
 
 class Subscription(models.Model):
+    name = models.CharField(max_length=100, blank=True)
+
     user = models.OneToOneField('auth.User', primary_key=True)
     first_name = models.CharField(blank=True, max_length=100)
     last_name = models.CharField(blank=True, max_length=100)
-    plan_name = models.CharField(max_length=100, blank=True)
     feature_level = models.CharField(max_length=100, blank=True)
     active_until = models.DateTimeField(blank=True, null=True)
     token = models.CharField(max_length=100, blank=True)
