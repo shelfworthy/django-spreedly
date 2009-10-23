@@ -32,14 +32,20 @@ class SubscribeForm(forms.Form):
     subscription = forms.ModelChoiceField(queryset=Plan.objects.filter(enabled=True), empty_label=None)
     
     def clean(self):
-        username = self.cleaned_data.get("username")
-        email = self.cleaned_data.get("email")
-        pass1 = self.cleaned_data.get("password1")
-        pass2 = self.cleaned_data.get("password2")
+        username =  self.cleaned_data.get("username")
+        email =     self.cleaned_data.get("email")
+        pass1 =     self.cleaned_data.get("password1")
+        pass2 =     self.cleaned_data.get("password2")
+        plan =      self.cleaned_data.get("subscription")
         
         if username and email and pass1 and pass2:
             if pass1 != pass2:
                 raise forms.ValidationError(_("You must type the same password each time."))
+            
+            if plan.is_free_trial_plan:
+                existing_users = User.objects.filter(email=email).count()
+                if existing_users:
+                    raise forms.ValidationError(_("A user with this email has already had a free trial."))
             
             user, created = User.objects.get_or_create(username=username.lower(), defaults={
                 'email': email,
