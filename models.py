@@ -67,6 +67,10 @@ class Plan(models.Model):
     def is_gift_plan(self):
         return self.plan_type == "gift"
 
+    @property
+    def is_free_trial_plan(self):
+        return self.plan_type == "free_trial"
+
 class SubscriptionManager(models.Manager):
     def has_active(self, user):
         '''

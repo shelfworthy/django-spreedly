@@ -9,7 +9,7 @@ from spreedly.pyspreedly.api import Client
 from spreedly.functions import sync_plans, get_subscription, start_free_trial
 from spreedly.models import Plan, Subscription
 import spreedly.settings as spreedly_settings
-from spreedly.forms import subscribeForm
+from spreedly.forms import SubscribeForm
 
 def plan_list(request, extra_context=None, **kwargs):
     sub = None
@@ -28,7 +28,7 @@ def plan_list(request, extra_context=None, **kwargs):
         cache.set(cache_key, plans, 60*60*24)
     
     # deal with the form
-    form = subscribeForm(request.POST or None)
+    form = SubscribeForm(request.POST or None)
     if form.is_valid():
         redirect_url = form.save()
         return HttpResponseRedirect(redirect_url)

@@ -11,7 +11,7 @@ from spreedly.models import Plan
 from spreedly.functions import subscription_url, check_trial_eligibility, return_url
 import spreedly.settings as spreedly_settings
 
-class subscribeForm(forms.Form):
+class SubscribeForm(forms.Form):
     username = forms.CharField(
         max_length=30,
         required=True
