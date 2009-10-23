@@ -3,6 +3,11 @@ from datetime import datetime
 from django.db import models
 from django.db.models import Q
 
+class PlanManager(models.Manager):
+    def enabled(self):
+        return self.model.objects.filter(enabled=True)
+
+
 class Plan(models.Model):
     '''
     Subscription plan
@@ -35,6 +40,8 @@ class Plan(models.Model):
     speedly_site_id = models.IntegerField(db_index=True, null=True)
     
     order = models.PositiveIntegerField(null=True)
+    
+    objects = PlanManager()
     
     class Meta:
         ordering = ['order', 'price']

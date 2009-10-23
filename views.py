@@ -24,7 +24,7 @@ def plan_list(request, extra_context=None, **kwargs):
     plans = cache.get(cache_key)
     if not plans:
         sync_plans()
-        plans = list(Plan.objects.filter(enabled=True))
+        plans = list(Plan.objects.enabled())
         cache.set(cache_key, plans, 60*60*24)
     
     # deal with the form
