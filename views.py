@@ -52,6 +52,20 @@ def plan_list(request, extra_context=None, **kwargs):
         context_instance=context
     )
 
+def gift_sign_up(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise Http404
+    
+    return render_to_response(
+        spreedly_settings.SPREEDLY_EMAIL_SENT_TEMPLATE, {
+            'request': request,
+            'user': user
+        }
+    )
+
+
 def email_sent(request, user_id):
     try:
         user = User.objects.get(id=user_id)
