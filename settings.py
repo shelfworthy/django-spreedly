@@ -28,5 +28,11 @@ SPREEDLY_CONFIRM_EMAIL = getattr(settings, 'SPREEDLY_CONFIRM_EMAIL', 'confirm_em
 # the subject for the confirmation email
 SPREEDLY_CONFIRM_EMAIL_SUBJECT = getattr(settings, 'SPREEDLY_CONFIRM_EMAIL_SUBJECT', 'complete your subscription to %s' % Site.objects.get(id=settings.SITE_ID).name)
 
+# the template to use for the confirmation email
+SPREEDLY_GIFT_EMAIL = getattr(settings, 'SPREEDLY_GIFT_EMAIL', 'gift_email.txt')
+
+# the subject for the confirmation email
+SPREEDLY_GIFT_EMAIL_SUBJECT = getattr(settings, 'SPREEDLY_GIFT_EMAIL_SUBJECT', 'gift subscription to %s' % Site.objects.get(id=settings.SITE_ID).name)
+
 # This template will be used after a user has signed up on your site and a confirm email has been sent to them
 SPREEDLY_EMAIL_SENT_TEMPLATE = getattr(settings, 'SPREEDLY_EMAIL_SENT_TEMPLATE', 'email_sent.html')

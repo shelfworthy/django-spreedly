@@ -77,6 +77,15 @@ Installation
 	# this defaults to 'email_sent.html'
 	SPREEDLY_EMAIL_SENT_TEMPLATE = 'path/to/your/template.html'
 
+	# this is the email that will be sent to the user recieving the gift subscription
+	# this default to 'gift_email.txt' Be sure to include {{ spreedly_url }} in your template
+	SPREEDLY_GIFT_EMAIL = 'path/to/your/template.txt'
+
+	# the subject for the gift confirm email
+	# this defaults to 'gift subscription to %s' % Site.objects.get(id=settings.SITE_ID).name
+	SPREEDLY_GIFT_EMAIL_SUBJECT = 'This is a new subject'
+
+
 4) Add the middleware to your `settings.py` MIDDLEWARE_CLASSES:
 
 	'spreedly.middleware.SpreedlyMiddleware'

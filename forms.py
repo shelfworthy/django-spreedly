@@ -1,3 +1,5 @@
+import uuid
+
 from django import forms
 from django.conf import settings
 from django.core.mail import send_mail
@@ -20,15 +22,15 @@ class SubscribeForm(forms.Form):
         required=True
     )
     password1 = forms.CharField(
-                                label="Password",
-                                required=True,
-                                widget=forms.PasswordInput(),
-                            )
+        label="Password",
+        required=True,
+        widget=forms.PasswordInput(),
+    )
     password2 = forms.CharField(
-                                label="Password again",
-                                required=True,
-                                widget=forms.PasswordInput(),
-                            )
+        label="Password again",
+        required=True,
+        widget=forms.PasswordInput(),
+    )
     subscription = forms.ModelChoiceField(queryset=Plan.objects.filter(enabled=True), empty_label=None)
     
     def clean(self):
@@ -43,7 +45,7 @@ class SubscribeForm(forms.Form):
                 raise forms.ValidationError(_("You must type the same password each time."))
             
             if plan.is_free_trial_plan:
-                existing_users = User.objects.filter(email=email).count()
+                existing_users = Subscription.objects.filter(user__email=email, trial_elegible=False).count()
                 if existing_users:
                     raise forms.ValidationError(_("A user with this email has already had a free trial."))
             
@@ -83,3 +85,102 @@ class SubscribeForm(forms.Form):
             [user.email,]
         )
         return reverse('spreedly_email_sent', args=[user.id])
+
+class GiftRegister(forms.Form):
+    gift_key = forms.CharField(
+        widget = forms.HiddenInput()
+    )
+    username = forms.CharField(
+        max_length=30,
+        required=True
+    )
+    email = forms.EmailField(
+        required=True
+    )
+    password1 = forms.CharField(
+        label="Password",
+        required=True,
+        widget=forms.PasswordInput(),
+    )
+    password2 = forms.CharField(
+        label="Password again",
+        required=True,
+        widget=forms.PasswordInput(),
+    )
+    
+    def clean(self):
+        username =  self.cleaned_data.get("username")
+        email =     self.cleaned_data.get("email")
+        pass1 =     self.cleaned_data.get("password1")
+        pass2 =     self.cleaned_data.get("password2")
+        gift_key =  self.cleaned_data.get("gift_key")
+        
+        if username and email and pass1 and pass2:
+            if pass1 != pass2:
+                raise forms.ValidationError(_("You must type the same password each time."))
+            
+            user, created = User.objects.get_or_create(username=username.lower(), defaults={
+                'email': email,
+                'is_active': False
+            })
+            
+            if not created and user.is_active:
+                raise forms.ValidationError(_("Sorry, This username is already taken."))
+            elif not created:
+                user.email = email
+                user.save()
+        return self.cleaned_data
+
+class GiftForm(forms.Form):
+    subscription = forms.ModelChoiceField(queryset=Plan.objects.filter(plan_type='gift'), empty_label=None)
+    your_name = forms.CharField(
+        label="Your Name",
+        required=True
+    )
+    message = forms.CharField(
+        label="Message",
+        required=False,
+        widget=forms.Textarea(attrs={'rows':3, 'cols':55})
+    )
+    email = forms.EmailField(
+        label="Email",
+        required=True
+    )
+    email_again = forms.EmailField(
+        label="Email Again",
+        required=True
+    )
+    
+    def clean(self):
+        email =     self.cleaned_data.get("email")
+        email2 =    self.cleaned_data.get("email_again")
+        
+        if email and email2:
+            if email != email2:
+                raise forms.ValidationError(_("The two emails don't match. Please make sure both are correct."))
+        return self.cleaned_data
+    
+    def save(self):
+        gift_id = str(uuid.uuid4())[:29]
+        
+        user = User.objects.create(
+            username=gift_id,
+            email=self.cleaned_data["email"],
+            is_active-False
+        )
+        
+        plan = self.cleaned_data["subscription"]
+        
+        send_mail(
+            spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
+            render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
+                'plan': plan,
+                'giver': self.cleaned_data["your_name"],
+                'site': Site.objects.get(id=settings.SITE_ID),
+                'register_url': url
+            }),
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email,]
+        )
+        return subscription_url(plan, user)
+    

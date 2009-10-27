@@ -1,0 +1,7 @@
+Hello,
+
+{{ giver }} has given you a '{{ plan.name }}' subscription to {{ site.name }}! You can complete the gift process by clicking on the following link:
+
+{{ spreedly_url }}
+
+Thanks!
