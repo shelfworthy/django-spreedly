@@ -166,7 +166,7 @@ class GiftForm(forms.Form):
         user = User.objects.create(
             username=gift_id,
             email=self.cleaned_data["email"],
-            is_active-False
+            is_active=False
         )
         
         plan = self.cleaned_data["subscription"]
