@@ -79,7 +79,7 @@ def email_sent(request, user_id):
         }
     )
 
-def spreedly_return(request, user_id, plan_pk):
+def spreedly_return(request, user_id, plan_pk, extra_context=None, **kwargs):
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
@@ -91,12 +91,20 @@ def spreedly_return(request, user_id, plan_pk):
     
     subscription = get_subscription(user)
     
+    our_context = {
+        'subscription': subscription,
+        'request': request,
+        'login_url': settings.LOGIN_URL
+    }
+    if extra_context:
+        our_context.update(extra_context)
+    context = RequestContext(request)
+    for key, value in our_context.items():
+        context[key] = callable(value) and value() or value
     return render_to_response(
-        spreedly_settings.SPREEDLY_RETURN_TEMPLATE, {
-            'subscription': subscription,
-            'request': request,
-            'login_url': settings.LOGIN_URL
-        }
+        spreedly_settings.SPREEDLY_RETURN_TEMPLATE,
+        kwargs,
+        context_instance=context
     )
 
 def spreedly_listener(request):
