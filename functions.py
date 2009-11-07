@@ -4,6 +4,7 @@ from django.contrib.sites.models import Site
 
 from spreedly.models import Plan, Subscription
 from spreedly.pyspreedly.api import Client
+import spreedly.settings as spreedly_settings
 
 def sync_plans():
     '''
@@ -56,7 +57,7 @@ def start_free_trial(plan, user):
         return False
 
 def return_url(plan, user, trial=False):
-    url = 'http://%s%s' % (Site.objects.get(id=settings.SITE_ID), reverse('spreedly_return', args=[user.id, plan.pk]))
+    url = 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('spreedly_return', args=[user.id, plan.pk]))
     if trial:
         url = url + '?trial=true'
     return url

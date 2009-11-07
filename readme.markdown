@@ -85,6 +85,9 @@ Installation
 	# this defaults to 'gift subscription to %s' % Site.objects.get(id=settings.SITE_ID).name
 	SPREEDLY_GIFT_EMAIL_SUBJECT = 'This is a new subject'
 
+	# the base url for your site to be used when returning users from spreedly.
+	# this default to Site.objects.get(id=settings.SITE_ID) from the django Site app.
+	SPREEDLY_SITE_URL = 'http://something.com'
 
 4) Add the middleware to your `settings.py` MIDDLEWARE_CLASSES:
 

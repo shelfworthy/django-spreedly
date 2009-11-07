@@ -36,3 +36,6 @@ SPREEDLY_GIFT_EMAIL_SUBJECT = getattr(settings, 'SPREEDLY_GIFT_EMAIL_SUBJECT', '
 
 # This template will be used after a user has signed up on your site and a confirm email has been sent to them
 SPREEDLY_EMAIL_SENT_TEMPLATE = getattr(settings, 'SPREEDLY_EMAIL_SENT_TEMPLATE', 'email_sent.html')
+
+# the url that will be used to return users from spreedly to your site.
+SPREEDLY_SITE_URL = getattr(settings, 'SPREEDLY_SITE_URL', Site.objects.get(id=settings.SITE_ID))

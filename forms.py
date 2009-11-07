@@ -78,7 +78,7 @@ class SubscribeForm(forms.Form):
             render_to_string(spreedly_settings.SPREEDLY_CONFIRM_EMAIL, {
                 'plan': plan,
                 'user': user,
-                'site': Site.objects.get(id=settings.SITE_ID),
+                'site': spreedly_settings.SPREEDLY_SITE_URL,
                 'spreedly_url': url
             }),
             settings.DEFAULT_FROM_EMAIL,
@@ -176,7 +176,7 @@ class GiftForm(forms.Form):
             render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
                 'plan': plan,
                 'giver': self.cleaned_data["your_name"],
-                'site': Site.objects.get(id=settings.SITE_ID),
+                'site': spreedly_settings.SPREEDLY_SITE_URL,
                 'register_url': url
             }),
             settings.DEFAULT_FROM_EMAIL,
