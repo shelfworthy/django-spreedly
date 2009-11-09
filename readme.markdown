@@ -87,7 +87,7 @@ Installation
 
 	# the base url for your site to be used when returning users from spreedly.
 	# this default to Site.objects.get(id=settings.SITE_ID) from the django Site app.
-	SPREEDLY_SITE_URL = 'http://something.com'
+	SPREEDLY_SITE_URL = 'something.com'
 
 4) Add the middleware to your `settings.py` MIDDLEWARE_CLASSES:
 

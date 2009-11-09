@@ -1,16 +1,22 @@
+{% load spreedly_tags %}
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>Subscriptions | Thanks!</title>
 	</head>
 	<body>
-		<h1>Thanks for getting a '{{ subscription.name }}' subscription!</h1>
-		<h2>
-			{% if request.user.is_authenticated %}
-				<h2>Go <a href="/">Home</a>.
-			{% else %}
-				Please Login <a href="{{ login_url }}">here</a>
-			{% endif %}
-		</h2>
+		{% if subscription.active %}
+			<h1>Thanks for getting a '{{ subscription.name }}' subscription!</h1>
+			<h2>
+				{% if request.user.is_authenticated %}
+					<h2>Go <a href="/">Home</a>.
+				{% else %}
+					Please Login <a href="{{ login_url }}">here</a>
+				{% endif %}
+			</h2>
+		{% else %}
+			<h1>This subscription is not yet active.</h1>
+			<h2>Please visit the following link to activate your subscription: <a href='{% existing_plan_url subscription.user %}'>Edit Subscription</a></h2>
+		{% endif %}
 	</body>
 </html>
