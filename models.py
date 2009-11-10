@@ -107,7 +107,7 @@ class Subscription(models.Model):
         super(Subscription, self).save(*args, **kwargs)
     
     @property
-    def subscription_status(self):
+    def subscription_active(self):
         '''gets the status based on current active status and active_until'''
         if self.active and (self.active_until > datetime.today() or active_until == None):
             return True
