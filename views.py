@@ -125,4 +125,9 @@ def spreedly_listener(request):
                         if hasattr(subscription, k):
                             setattr(subscription, k, v)
                     subscription.save()
+                    try:
+                        signals.subscription_update.send(sender=subscription, user=User.objects.get(id=id))
+                    except User.DoesNotExist:
+                        # TODO not sure what exactly to do here. Delete the subscripton on spreedly?
+                        pass
     raise Http404
