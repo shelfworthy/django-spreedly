@@ -161,26 +161,15 @@ class GiftForm(forms.Form):
         return self.cleaned_data
     
     def save(self):
-        gift_id = str(uuid.uuid4())[:29]
+        gift_id = str(uuid.uuid4().hex)[:29]
         
         user = User.objects.create(
             username=gift_id,
             email=self.cleaned_data["email"],
-            is_active=False
+            is_active=False,
+            password='GIFT'
         )
         
         plan = self.cleaned_data["subscription"]
-        
-        send_mail(
-            spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
-            render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
-                'plan': plan,
-                'giver': self.cleaned_data["your_name"],
-                'site': spreedly_settings.SPREEDLY_SITE_URL,
-                'register_url': url
-            }),
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email,]
-        )
         return subscription_url(plan, user)
     

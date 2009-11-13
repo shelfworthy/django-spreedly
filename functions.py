@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 from spreedly.models import Plan, Subscription
 from spreedly.pyspreedly.api import Client
@@ -63,7 +65,7 @@ def return_url(plan, user, trial=False):
     return url
 
 def subscription_url(plan, user):
-    return 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_username)s?email=%(user_email)s&return_url=%(return_url)s' % {
+    return 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_email)s?email=%(user_email)s&return_url=%(return_url)s' % {
         'site_name': settings.SPREEDLY_SITE_NAME,
         'plan_id': plan.pk,
         'user_id': user.id,
@@ -71,3 +73,17 @@ def subscription_url(plan, user):
         'user_email': user.email,
         'return_url': return_url(plan, user)
     }
+    
+    
+def send_activation_email(email, plan, gift_id):
+    send_mail(
+        spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
+        render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
+            'plan': plan,
+            'giver': 'some user',
+            'site': spreedly_settings.SPREEDLY_SITE_URL,
+            'register_url': 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[gift_id]))
+        }),
+        settings.DEFAULT_FROM_EMAIL,
+        [email,]
+    )

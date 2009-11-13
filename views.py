@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.conf import settings
 
 from spreedly.pyspreedly.api import Client
-from spreedly.functions import sync_plans, get_subscription, start_free_trial
+from spreedly.functions import sync_plans, get_subscription, start_free_trial, send_activation_email
 from spreedly.models import Plan, Subscription
 import spreedly.settings as spreedly_settings
 from spreedly.forms import SubscribeForm
@@ -85,8 +85,13 @@ def spreedly_return(request, user_id, plan_pk, extra_context=None, **kwargs):
     except User.DoesNotExist:
         raise Http404
     
+    plan = Plan.objects.get(pk=plan_pk)
+    
+    if plan.plan_type == 'gift':
+        send_activation_email(user.email, plan, user.username) #username = gift_id
+        
+    
     if request.GET.has_key('trial'):
-        plan = Plan.objects.get(pk=plan_pk)
         start_free_trial(plan, user)
     
     subscription = get_subscription(user)
