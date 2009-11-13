@@ -54,7 +54,7 @@ def plan_list(request, extra_context=None, **kwargs):
         context_instance=context
     )
 
-def gift_sign_up(request, gift_id):
+def gift_sign_up(request, gift_id, extra_context=None, **kwargs):
     try:
         gift = Gift.objects.get(uuid=gift_id)
     except Gift.DoesNotExist:
@@ -77,13 +77,21 @@ def gift_sign_up(request, gift_id):
             return HttpResponseRedirect('/')
     else:
         form = GiftRegisterForm(initial={'email': gift.to_user.email})
-    
-    
+
+    our_context = {
+        'request': request,
+        'form': form,
+    }
+
+    if extra_context:
+        our_context.update(extra_context)
+    context = RequestContext(request)
+    for key, value in our_context.items():
+        context[key] = callable(value) and value() or value
     return render_to_response(
-        spreedly_settings.SPREEDLY_GIFT_REGISTER_TEMPLATE, {
-            'request': request,
-            'form': form
-        }
+        spreedly_settings.SPREEDLY_GIFT_REGISTER_TEMPLATE,
+        kwargs,
+        context_instance=context
     )
 
 
