@@ -71,6 +71,9 @@ def gift_sign_up(request, gift_id, extra_context=None, **kwargs):
             user.set_password(data['password1'])
             user.is_active=True
             user.save()
+            #update spreedly info
+            client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
+            client.set_info(user.pk, email=user.email, screen_name=user.username)
 
             gift.delete()
             
