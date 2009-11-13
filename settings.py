@@ -39,3 +39,5 @@ SPREEDLY_EMAIL_SENT_TEMPLATE = getattr(settings, 'SPREEDLY_EMAIL_SENT_TEMPLATE',
 
 # the url that will be used to return users from spreedly to your site.
 SPREEDLY_SITE_URL = getattr(settings, 'SPREEDLY_SITE_URL', Site.objects.get(id=settings.SITE_ID))
+
+SPREEDLY_GIFT_REGISTER_TEMPLATE = getattr(settings, 'SPREEDLY_GIFT_REGISTER_TEMPLATE', 'log_in.html')

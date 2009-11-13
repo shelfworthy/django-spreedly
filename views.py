@@ -4,12 +4,14 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.cache import cache
 from django.conf import settings
+from django.contrib.auth import authenticate, login
+
 
 from spreedly.pyspreedly.api import Client
-from spreedly.functions import sync_plans, get_subscription, start_free_trial, send_activation_email
-from spreedly.models import Plan, Subscription
+from spreedly.functions import sync_plans, get_subscription, start_free_trial
+from spreedly.models import Plan, Subscription, Gift
 import spreedly.settings as spreedly_settings
-from spreedly.forms import SubscribeForm
+from spreedly.forms import SubscribeForm, GiftRegisterForm
 
 def plan_list(request, extra_context=None, **kwargs):
     sub = None
@@ -52,16 +54,35 @@ def plan_list(request, extra_context=None, **kwargs):
         context_instance=context
     )
 
-def gift_sign_up(request, user_id):
+def gift_sign_up(request, gift_id):
     try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        raise Http404
+        gift = Gift.objects.get(uuid=gift_id)
+    except Gift.DoesNotExist:
+        raise Http404('Requested gift is not valid')
+    
+    if request.method == 'POST':
+        form = GiftRegisterForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = gift.to_user
+
+            user.username = data['username']
+            user.email = data['email']
+            user.set_password(data['password1'])
+            user.is_active=True
+            user.save()
+
+            gift.delete()
+            
+            return HttpResponseRedirect('/')
+    else:
+        form = GiftRegisterForm(initial={'email': gift.to_user.email})
+    
     
     return render_to_response(
-        spreedly_settings.SPREEDLY_EMAIL_SENT_TEMPLATE, {
+        spreedly_settings.SPREEDLY_GIFT_REGISTER_TEMPLATE, {
             'request': request,
-            'user': user
+            'form': form
         }
     )
 
@@ -88,7 +109,7 @@ def spreedly_return(request, user_id, plan_pk, extra_context=None, **kwargs):
     plan = Plan.objects.get(pk=plan_pk)
     
     if plan.plan_type == 'gift':
-        send_activation_email(user.email, plan, user.username) #username = gift_id
+        Gift.objects.get(to_user=user_id).send_activation_email()
         
     
     if request.GET.has_key('trial'):
@@ -126,6 +147,7 @@ def spreedly_listener(request):
                     subscription, created = Subscription.objects.get_or_create(
                         user__pk=id
                     )
+                            
                     for k, v in data.items():
                         if hasattr(subscription, k):
                             setattr(subscription, k, v)
@@ -135,4 +157,7 @@ def spreedly_listener(request):
                     except User.DoesNotExist:
                         # TODO not sure what exactly to do here. Delete the subscripton on spreedly?
                         pass
+                #handle gifts
+                for gift in Gift.objects.filter(to_user__pk__in=subscriber_ids):
+                    gift.send_activation_email()
     raise Http404

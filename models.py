@@ -2,6 +2,12 @@ from datetime import datetime
 
 from django.db import models
 from django.db.models import Q
+from django.core.mail import send_mail
+from django.contrib.auth.models import User
+from django.template.loader import render_to_string
+from django.core.urlresolvers import reverse
+from django.conf import settings
+
 
 class PlanManager(models.Manager):
     def enabled(self):
@@ -112,3 +118,33 @@ class Subscription(models.Model):
         if self.active and (self.active_until > datetime.today() or active_until == None):
             return True
         return False
+        
+        
+class Gift(models.Model):
+    uuid = models.CharField(max_length=32, unique=True, db_index=True)
+    
+    from_user = models.ForeignKey(User, related_name='gifts_sent')
+    to_user = models.ForeignKey(User, related_name='gifts_received')
+    
+    plan = models.ForeignKey(Plan)
+    
+    created_at = models.DateField(auto_now_add=True)
+    sent_at = models.DateField(blank=True, null=True)
+    
+    def send_activation_email(self):
+        import spreedly.settings as spreedly_settings
+        if not self.sent_at: #don't spam user with invitations
+            send_mail(
+                spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
+                render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
+                    'plan': self.plan,
+                    'giver': '%s (%s)' % (self.from_user, self.from_user.email),
+                    'site': spreedly_settings.SPREEDLY_SITE_URL,
+                    'register_url': 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[self.uuid]))
+                }),
+                settings.DEFAULT_FROM_EMAIL,
+                [self.to_user.email,]
+            )
+            self.sent_at = datetime.today()
+            self.save()
+    

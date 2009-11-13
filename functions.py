@@ -75,17 +75,3 @@ def subscription_url(plan, user):
         'user_email': user.email,
         'return_url': return_url(plan, user)
     }
-    
-    
-def send_activation_email(email, plan, gift_id):
-    send_mail(
-        spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
-        render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
-            'plan': plan,
-            'giver': 'some user',
-            'site': spreedly_settings.SPREEDLY_SITE_URL,
-            'register_url': 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[gift_id]))
-        }),
-        settings.DEFAULT_FROM_EMAIL,
-        [email,]
-    )

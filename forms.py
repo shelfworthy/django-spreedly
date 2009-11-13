@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from spreedly.models import Plan
+from spreedly.models import Plan, Gift
 from spreedly.functions import subscription_url, check_trial_eligibility, return_url
 import spreedly.settings as spreedly_settings
 
@@ -86,10 +86,7 @@ class SubscribeForm(forms.Form):
         )
         return reverse('spreedly_email_sent', args=[user.id])
 
-class GiftRegister(forms.Form):
-    gift_key = forms.CharField(
-        widget = forms.HiddenInput()
-    )
+class GiftRegisterForm(forms.Form):
     username = forms.CharField(
         max_length=30,
         required=True
@@ -108,6 +105,15 @@ class GiftRegister(forms.Form):
         widget=forms.PasswordInput(),
     )
     
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        try:
+            User.objects.get(username=self.cleaned_data['username'])
+            raise forms.ValidationError(_("Sorry, This username is already taken."))
+        except User.DoesNotExist:
+            return username
+            
+    
     def clean(self):
         username =  self.cleaned_data.get("username")
         email =     self.cleaned_data.get("email")
@@ -118,17 +124,6 @@ class GiftRegister(forms.Form):
         if username and email and pass1 and pass2:
             if pass1 != pass2:
                 raise forms.ValidationError(_("You must type the same password each time."))
-            
-            user, created = User.objects.get_or_create(username=username.lower(), defaults={
-                'email': email,
-                'is_active': False
-            })
-            
-            if not created and user.is_active:
-                raise forms.ValidationError(_("Sorry, This username is already taken."))
-            elif not created:
-                user.email = email
-                user.save()
         return self.cleaned_data
 
 class GiftForm(forms.Form):
@@ -160,8 +155,9 @@ class GiftForm(forms.Form):
                 raise forms.ValidationError(_("The two emails don't match. Please make sure both are correct."))
         return self.cleaned_data
     
-    def save(self):
+    def save(self, request):
         gift_id = str(uuid.uuid4().hex)[:29]
+        plan = self.cleaned_data["subscription"]
         
         user = User.objects.create(
             username=gift_id,
@@ -170,6 +166,11 @@ class GiftForm(forms.Form):
             password='GIFT'
         )
         
-        plan = self.cleaned_data["subscription"]
+        Gift.objects.create(
+            from_user=request.user,
+            to_user=user,
+            uuid = gift_id,
+            plan=plan
+            )        
         return subscription_url(plan, user)
     
