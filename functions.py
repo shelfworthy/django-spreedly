@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 
 from spreedly.models import Plan, Subscription
 from spreedly.pyspreedly.api import Client
+from spreedly import signals
 import spreedly.settings as spreedly_settings
 
 def sync_plans():
@@ -36,6 +37,7 @@ def get_subscription(user):
         if hasattr(subscription, k):
             setattr(subscription, k, v)
     subscription.save()
+    signals.subscription_update.send(sender=subscription, user=user)
     return subscription
 
 def check_trial_eligibility(plan, user):
