@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth import authenticate, login
-
+from django.contrib.auth.decorators import login_required
 
 from spreedly.pyspreedly.api import Client
 from spreedly.functions import sync_plans, get_subscription, start_free_trial
@@ -135,21 +135,21 @@ def email_sent(request, user_id):
         }
     )
 
-def spreedly_return(request, user_id, plan_pk, extra_context=None, **kwargs):
+def spreedly_return(request, user_id, plan_pk=None, extra_context=None, **kwargs):
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         raise Http404
     
-    plan = Plan.objects.get(pk=plan_pk)
-    
-    if plan.plan_type == 'gift':
-        Gift.objects.get(to_user=user_id).send_activation_email()
+    if plan_pk:
+        plan = Plan.objects.get(pk=plan_pk)
         
-    
-    if request.GET.has_key('trial'):
-        start_free_trial(plan, user)
-    
+        if plan.plan_type == 'gift':
+            Gift.objects.get(to_user=user_id).send_activation_email()
+        
+        if request.GET.has_key('trial'):
+            start_free_trial(plan, user)
+        
     subscription = get_subscription(user)
     
     our_context = {
@@ -167,6 +167,10 @@ def spreedly_return(request, user_id, plan_pk, extra_context=None, **kwargs):
         kwargs,
         context_instance=context
     )
+
+@login_required
+def my_subscription(request):
+    return spreedly_return(request, request.user.id)
 
 def spreedly_listener(request):
     if request.method == 'POST':
