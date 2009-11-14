@@ -69,7 +69,7 @@ class SubscribeForm(forms.Form):
         
         trial = check_trial_eligibility(plan, user)
         if trial:
-            url = return_url(plan, user, trial=True)
+            url = return_url(plan.pk, user, trial=True)
         else:
             url = subscription_url(plan, user)
         

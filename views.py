@@ -126,7 +126,7 @@ def spreedly_return(request, user_id, plan_pk=None, extra_context=None, **kwargs
         if request.GET.has_key('trial'):
             start_free_trial(plan, user)
         
-        subscription = get_subscription(user)
+    subscription = get_subscription(user)
     
     our_context = {
         'subscription': subscription,

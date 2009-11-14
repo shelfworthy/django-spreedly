@@ -60,8 +60,8 @@ def start_free_trial(plan, user):
     else:
         return False
 
-def return_url(plan, user, trial=False):
-    url = 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('spreedly_return', args=[user.id, plan.pk]))
+def return_url(plan_pk, user, trial=False):
+    url = 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('spreedly_return', args=[user.id, plan_pk]))
     if trial:
         url = url + '?trial=true'
     return url
@@ -73,5 +73,5 @@ def subscription_url(plan, user):
         'user_id': user.id,
         'user_username': user.username,
         'user_email': user.email,
-        'return_url': return_url(plan, user)
+        'return_url': return_url(plan.pk, user)
     }
