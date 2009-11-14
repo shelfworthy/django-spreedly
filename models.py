@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.db.models import Q
@@ -111,6 +111,10 @@ class Subscription(models.Model):
             self.user.is_active = True
             self.user.save()
         super(Subscription, self).save(*args, **kwargs)
+    
+    @property
+    def ending_this_month(self):
+        return self.active_until >= datetime.today() - timedelta(days=30)
     
     @property
     def subscription_active(self):
