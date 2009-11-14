@@ -172,5 +172,21 @@ class GiftForm(forms.Form):
             uuid = gift_id,
             plan=plan
             )        
-        return subscription_url(plan, user)
+        return (plan, user)
+        
+class PlanModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        if obj.enabled:
+            return unicode(obj)
+        else:
+            return '*%s' % (obj)
+        
+class AdminGiftForm(GiftForm):
+    def __init__(self, *a, **kw):
+        super(AdminGiftForm, self).__init__(*a, **kw)
+        self.fields['subscription'] = PlanModelChoiceField(queryset=Plan.objects.order_by('-enabled'),
+            empty_label=None,
+            help_text=u'* - disabled plan')
+            
+        self.fields['your_name'].initial = 'Admin'
     

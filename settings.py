@@ -41,3 +41,4 @@ SPREEDLY_EMAIL_SENT_TEMPLATE = getattr(settings, 'SPREEDLY_EMAIL_SENT_TEMPLATE',
 SPREEDLY_SITE_URL = getattr(settings, 'SPREEDLY_SITE_URL', Site.objects.get(id=settings.SITE_ID))
 
 SPREEDLY_GIFT_REGISTER_TEMPLATE = getattr(settings, 'SPREEDLY_GIFT_REGISTER_TEMPLATE', 'log_in.html')
+SPREEDLY_ADMIN_GIFT_TEMPLATE = getattr(settings, 'SPREEDLY_ADMIN_GIFT_TEMPLATE', 'admin_gift.html')

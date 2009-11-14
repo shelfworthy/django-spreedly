@@ -11,7 +11,7 @@ from spreedly.pyspreedly.api import Client
 from spreedly.functions import sync_plans, get_subscription, start_free_trial
 from spreedly.models import Plan, Subscription, Gift
 import spreedly.settings as spreedly_settings
-from spreedly.forms import SubscribeForm, GiftRegisterForm
+from spreedly.forms import SubscribeForm, GiftRegisterForm, AdminGiftForm
 
 def plan_list(request, extra_context=None, **kwargs):
     sub = None
@@ -53,6 +53,30 @@ def plan_list(request, extra_context=None, **kwargs):
         kwargs,
         context_instance=context
     )
+
+def admin_gift(request):
+    if request.method == 'POST':
+        form = AdminGiftForm(request.POST)
+        if form.is_valid():
+            plan, user = form.save(request)
+            
+            client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
+            client.create_subscriber(user.pk, user.email)
+            client.create_complimentary_subscription(user.pk, plan.duration, plan.duration_units, plan.feature_level)
+            user.gifts_received.latest('id').send_activation_email()
+            get_subscription(user)
+            
+            
+    else:
+        form = AdminGiftForm()
+    
+    
+    return render_to_response(
+        spreedly_settings.SPREEDLY_ADMIN_GIFT_TEMPLATE,
+        {'form': form},
+        context_instance=RequestContext(request),
+    )
+
 
 def gift_sign_up(request, gift_id, extra_context=None, **kwargs):
     try:
