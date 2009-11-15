@@ -131,6 +131,7 @@ class Gift(models.Model):
     to_user = models.ForeignKey(User, related_name='gifts_received')
     
     plan_name = models.CharField(max_length=100)
+    message = models.TextField(blank=True)
     
     created_at = models.DateField(auto_now_add=True)
     sent_at = models.DateField(blank=True, null=True)
@@ -141,6 +142,7 @@ class Gift(models.Model):
             send_mail(
                 spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
                 render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
+                    'message': message,
                     'plan_name': self.plan_name,
                     'giver': '%s (%s)' % (self.from_user, self.from_user.email),
                     'site': spreedly_settings.SPREEDLY_SITE_URL,

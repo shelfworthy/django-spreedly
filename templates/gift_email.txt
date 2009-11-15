@@ -1,6 +1,13 @@
 Hello,
 
-{{ giver }} has given you a '{{ plan_name }}' subscription to {{ site.name }}! You can complete the gift process by clicking on the following link:
+{{ giver }} has given you a '{{ plan_name }}' subscription to {{ site.name }}! 
+{% if message %}
+
+	"{{ message }}"
+	-{{ giver }}
+
+{% endif %}
+You can complete the gift process by clicking on the following link:
 
 {{ register_url }}
 

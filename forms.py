@@ -190,8 +190,9 @@ class GiftForm(forms.Form):
             from_user=request.user,
             to_user=user,
             uuid = gift_id,
-            plan_name=plan.name
-            )        
+            plan_name=plan.name,
+            message=self.cleaned_data["message"]
+        )
         return (plan, user)
 
 class PlanModelChoiceField(forms.ModelChoiceField):
@@ -250,6 +251,7 @@ class AdminGiftForm(forms.Form):
             from_user=request.user,
             to_user=user,
             uuid = gift_id,
+            message=self.cleaned_data["message"],
             plan_name=self.cleaned_data["plan_name"]
         )
         return user
