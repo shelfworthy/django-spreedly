@@ -13,6 +13,8 @@ from spreedly.models import Plan, Gift
 from spreedly.functions import subscription_url, check_trial_eligibility, return_url
 import spreedly.settings as spreedly_settings
 
+from spreedly.pyspreedly.api import Client
+
 class SubscribeForm(forms.Form):
     username = forms.CharField(
         max_length=30,
@@ -104,15 +106,7 @@ class GiftRegisterForm(forms.Form):
         required=True,
         widget=forms.PasswordInput(),
     )
-    
-    def clean_username(self):
-        username = self.cleaned_data['username']
-        try:
-            User.objects.get(username=self.cleaned_data['username'])
-            raise forms.ValidationError(_("Sorry, This username is already taken."))
-        except User.DoesNotExist:
-            return username
-            
+    gift_key = forms.CharField(max_length=32, required=True, widget=forms.HiddenInput)
     
     def clean(self):
         username =  self.cleaned_data.get("username")
@@ -121,10 +115,36 @@ class GiftRegisterForm(forms.Form):
         pass2 =     self.cleaned_data.get("password2")
         gift_key =  self.cleaned_data.get("gift_key")
         
+        if username:
+            try:
+                User.objects.get(username=self.cleaned_data['username'], is_active=True)
+                raise forms.ValidationError(_("Sorry, This username is already taken."))
+            except User.DoesNotExist:
+                pass
         if username and email and pass1 and pass2:
             if pass1 != pass2:
                 raise forms.ValidationError(_("You must type the same password each time."))
         return self.cleaned_data
+    
+    def save(self):
+        # remove any inactive users with this same username
+        try:
+            old_user = User.objects.get(username=self.cleaned_data['username'], is_active=False)
+            old_user.delete()
+        except User.DoesNotExist:
+            pass
+        gift = Gift.objects.get(uuid=self.cleaned_data["gift_key"])
+        user = gift.to_user
+        user.username = self.cleaned_data['username']
+        user.email = self.cleaned_data['email']
+        user.set_password(self.cleaned_data['password1'])
+        user.is_active=True
+        user.save()
+        #update spreedly info
+        client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
+        client.set_info(user.pk, email=user.email, screen_name=user.username)
+        gift.delete()
+        return user
 
 class GiftForm(forms.Form):
     subscription = forms.ModelChoiceField(queryset=Plan.objects.filter(plan_type='gift'), empty_label=None)
@@ -173,7 +193,7 @@ class GiftForm(forms.Form):
             plan_name=plan.name
             )        
         return (plan, user)
-        
+
 class PlanModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         if obj.enabled:
@@ -182,24 +202,13 @@ class PlanModelChoiceField(forms.ModelChoiceField):
             return '*%s' % (obj)
         
 class AdminGiftForm(forms.Form):
-    def __init__(self, *a, **kw):
-        super(AdminGiftForm, self).__init__(*a, **kw)
-        self.fields['feature_level'] = PlanModelChoiceField(queryset=Plan.objects.order_by('-enabled'),
-            empty_label=None
-        )
-        feature_choices = []
-        for i in Plan.objects.all():
-            if not (i.feature_level, i.feature_level) in feature_choices:
-                feature_choices.append((i.feature_level, i.feature_level))
-        self.fields['feature_level'].choices = feature_choices
-    
     plan_name = forms.CharField(
         label="Plan Name",
         required=True
     )
     feature_level = forms.ChoiceField(
         label="Feature Level",
-        choices=[]
+        choices=[(x,x) for x in set(Plan.objects.values_list('feature_level', flat=True))]
     )
     time = forms.ChoiceField(
         label="Time",

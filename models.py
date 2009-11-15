@@ -141,7 +141,7 @@ class Gift(models.Model):
             send_mail(
                 spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
                 render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
-                    'plan_name': plan_name,
+                    'plan_name': self.plan_name,
                     'giver': '%s (%s)' % (self.from_user, self.from_user.email),
                     'site': spreedly_settings.SPREEDLY_SITE_URL,
                     'register_url': 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[self.uuid]))

@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 
 from spreedly.pyspreedly.api import Client
 from spreedly.functions import sync_plans, get_subscription, start_free_trial
@@ -54,6 +55,7 @@ def plan_list(request, extra_context=None, **kwargs):
         context_instance=context
     )
 
+@staff_member_required
 def admin_gift(request):
     if request.method == 'POST':
         form = AdminGiftForm(request.POST)
@@ -85,23 +87,14 @@ def gift_sign_up(request, gift_id, extra_context=None, **kwargs):
     if request.method == 'POST':
         form = GiftRegisterForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data
-            user = gift.to_user
-
-            user.username = data['username']
-            user.email = data['email']
-            user.set_password(data['password1'])
-            user.is_active=True
-            user.save()
-            #update spreedly info
-            client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
-            client.set_info(user.pk, email=user.email, screen_name=user.username)
-
-            gift.delete()
+            user = form.save()
             
             return HttpResponseRedirect('/')
     else:
-        form = GiftRegisterForm(initial={'email': gift.to_user.email})
+        form = GiftRegisterForm(initial={
+            'email': gift.to_user.email,
+            'gift_key': gift_id
+        })
 
     our_context = {
         'request': request,
