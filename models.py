@@ -114,7 +114,7 @@ class Subscription(models.Model):
     
     @property
     def ending_this_month(self):
-        return self.active_until >= datetime.today() - timedelta(days=30)
+        return self.active_until <= datetime.today() - timedelta(days=30)
     
     @property
     def subscription_active(self):
@@ -130,7 +130,7 @@ class Gift(models.Model):
     from_user = models.ForeignKey(User, related_name='gifts_sent')
     to_user = models.ForeignKey(User, related_name='gifts_received')
     
-    plan = models.ForeignKey(Plan)
+    plan_name = models.CharField(max_length=100)
     
     created_at = models.DateField(auto_now_add=True)
     sent_at = models.DateField(blank=True, null=True)
@@ -141,7 +141,7 @@ class Gift(models.Model):
             send_mail(
                 spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
                 render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
-                    'plan': self.plan,
+                    'plan_name': plan_name,
                     'giver': '%s (%s)' % (self.from_user, self.from_user.email),
                     'site': spreedly_settings.SPREEDLY_SITE_URL,
                     'register_url': 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[self.uuid]))

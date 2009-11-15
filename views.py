@@ -58,15 +58,13 @@ def admin_gift(request):
     if request.method == 'POST':
         form = AdminGiftForm(request.POST)
         if form.is_valid():
-            plan, user = form.save(request)
+            user = form.save(request)
             
             client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
             client.create_subscriber(user.pk, user.email)
-            client.create_complimentary_subscription(user.pk, plan.duration, plan.duration_units, plan.feature_level)
+            client.create_complimentary_subscription(user.pk, form.cleaned_data['time'], form.cleaned_data['units'], form.cleaned_data['feature_level'])
             user.gifts_received.latest('id').send_activation_email()
             get_subscription(user)
-            
-            
     else:
         form = AdminGiftForm()
     

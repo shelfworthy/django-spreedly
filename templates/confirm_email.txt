@@ -1,6 +1,6 @@
 Hello,
 
-Somebody with this e-mail address ({{ user.email }}) signed up for a '{{ plan.name }}' subscription on {{ site.name }}. You can complete this process by clicking on the following link:
+Somebody with this e-mail address ({{ user.email }}) signed up for a '{{ plan_name }}' subscription on {{ site.name }}. You can complete this process by clicking on the following link:
 
 {{ spreedly_url }}
 

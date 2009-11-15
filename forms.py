@@ -76,7 +76,7 @@ class SubscribeForm(forms.Form):
         send_mail(
             spreedly_settings.SPREEDLY_CONFIRM_EMAIL_SUBJECT,
             render_to_string(spreedly_settings.SPREEDLY_CONFIRM_EMAIL, {
-                'plan': plan,
+                'plan_name': plan.name,
                 'user': user,
                 'site': spreedly_settings.SPREEDLY_SITE_URL,
                 'spreedly_url': url
@@ -170,7 +170,7 @@ class GiftForm(forms.Form):
             from_user=request.user,
             to_user=user,
             uuid = gift_id,
-            plan=plan
+            plan_name=plan.name
             )        
         return (plan, user)
         
@@ -181,12 +181,66 @@ class PlanModelChoiceField(forms.ModelChoiceField):
         else:
             return '*%s' % (obj)
         
-class AdminGiftForm(GiftForm):
+class AdminGiftForm(forms.Form):
     def __init__(self, *a, **kw):
         super(AdminGiftForm, self).__init__(*a, **kw)
-        self.fields['subscription'] = PlanModelChoiceField(queryset=Plan.objects.order_by('-enabled'),
-            empty_label=None,
-            help_text=u'* - disabled plan')
-            
-        self.fields['your_name'].initial = 'Admin'
+        self.fields['feature_level'] = PlanModelChoiceField(queryset=Plan.objects.order_by('-enabled'),
+            empty_label=None
+        )
+        feature_choices = []
+        for i in Plan.objects.all():
+            if not (i.feature_level, i.feature_level) in feature_choices:
+                feature_choices.append((i.feature_level, i.feature_level))
+        self.fields['feature_level'].choices = feature_choices
     
+    plan_name = forms.CharField(
+        label="Plan Name",
+        required=True
+    )
+    feature_level = forms.ChoiceField(
+        label="Feature Level",
+        choices=[]
+    )
+    time = forms.ChoiceField(
+        label="Time",
+        choices=[(i,i) for i in range(1,91)]
+    )
+    units = forms.ChoiceField(
+        label="Time Units",
+        choices=[
+            ('days', 'Day(s)'),
+            ('months', 'Month(s)')
+        ]
+    )
+
+    your_name = forms.CharField(
+        label="Your Name",
+        required=True
+    )
+    message = forms.CharField(
+        label="Message",
+        required=False,
+        widget=forms.Textarea(attrs={'rows':3, 'cols':55})
+    )
+    email = forms.EmailField(
+        label="Email",
+        required=True
+    )
+
+    def save(self, request):
+        gift_id = str(uuid.uuid4().hex)[:29]
+        
+        user = User.objects.create(
+            username=gift_id,
+            email=self.cleaned_data["email"],
+            is_active=False,
+            password='GIFT'
+        )
+        
+        Gift.objects.create(
+            from_user=request.user,
+            to_user=user,
+            uuid = gift_id,
+            plan_name=self.cleaned_data["plan_name"]
+        )
+        return user
