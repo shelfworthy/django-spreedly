@@ -1,4 +1,4 @@
-from pyspreedly.api import Client
+from spreedly.pyspreedly.api import Client
 
 from django.conf import settings
 from django.contrib.auth.models import User
