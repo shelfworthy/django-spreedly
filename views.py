@@ -13,6 +13,7 @@ from spreedly.functions import sync_plans, get_subscription, start_free_trial
 from spreedly.models import Plan, Subscription, Gift
 import spreedly.settings as spreedly_settings
 from spreedly.forms import SubscribeForm, GiftRegisterForm, AdminGiftForm
+from spreedly import signals
 
 def plan_list(request, extra_context=None, **kwargs):
     sub = None
