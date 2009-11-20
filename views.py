@@ -169,12 +169,12 @@ def spreedly_listener(request):
         # Try to extract customers' IDs
         if request.POST.has_key('subscriber_ids'):
             subscriber_ids = request.POST['subscriber_ids'].split(',')
-            
             if len(subscriber_ids):
                 client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
                 for id in subscriber_ids:
                     # Now let's query Spreedly API for the actual changes
                     data = client.get_info(int(id))
+                    
                     subscription, created = Subscription.objects.get_or_create(
                         user__pk=id
                     )
@@ -191,4 +191,4 @@ def spreedly_listener(request):
                 #handle gifts
                 for gift in Gift.objects.filter(to_user__pk__in=subscriber_ids):
                     gift.send_activation_email()
-    raise Http404
+    return HttpResponse() #200 OK
