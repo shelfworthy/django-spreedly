@@ -174,16 +174,17 @@ def spreedly_listener(request):
                 for id in subscriber_ids:
                     # Now let's query Spreedly API for the actual changes
                     data = client.get_info(int(id))
-                    
-                    subscription, created = Subscription.objects.get_or_create(
-                        user__pk=id
-                    )
-                            
-                    for k, v in data.items():
-                        if hasattr(subscription, k):
-                            setattr(subscription, k, v)
-                    subscription.save()
                     try:
+                        user = User.objects.get(pk=id)
+
+
+                        subscription, created = Subscription.objects.get_or_create(user=user)
+                            
+                        for k, v in data.items():
+                            if hasattr(subscription, k):
+                                setattr(subscription, k, v)
+                        subscription.save()
+                        
                         signals.subscription_update.send(sender=subscription, user=User.objects.get(id=id))
                     except User.DoesNotExist:
                         # TODO not sure what exactly to do here. Delete the subscripton on spreedly?
