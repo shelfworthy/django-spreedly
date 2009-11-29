@@ -1,3 +1,3 @@
 [submodule "pyspreedly"]
 	path = pyspreedly
-	url = git@github.com:chrisdrackett/python-spreedly.git
+	url = git://github.com/chrisdrackett/python-spreedly.git
