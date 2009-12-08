@@ -8,6 +8,8 @@ from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
+import spreedly.settings as spreedly_settings
+
 
 class PlanManager(models.Manager):
     def enabled(self):
@@ -136,8 +138,11 @@ class Gift(models.Model):
     created_at = models.DateField(auto_now_add=True)
     sent_at = models.DateField(blank=True, null=True)
     
+    def get_activation_url(self):
+        return 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[self.uuid]))
+    
+    
     def send_activation_email(self):
-        import spreedly.settings as spreedly_settings
         if not self.sent_at: #don't spam user with invitations
             send_mail(
                 spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
@@ -146,11 +151,12 @@ class Gift(models.Model):
                     'plan_name': self.plan_name,
                     'giver': '%s (%s)' % (self.from_user, self.from_user.email),
                     'site': spreedly_settings.SPREEDLY_SITE_URL,
-                    'register_url': 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[self.uuid]))
+                    'register_url': self.get_activation_url()
                 }),
                 settings.DEFAULT_FROM_EMAIL,
                 [self.to_user.email,]
             )
             self.sent_at = datetime.today()
             self.save()
+            
     
