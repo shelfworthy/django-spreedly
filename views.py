@@ -93,7 +93,6 @@ def gift_sign_up(request, gift_id, extra_context=None, **kwargs):
             return HttpResponseRedirect('/')
     else:
         form = GiftRegisterForm(initial={
-            'email': gift.to_user.email,
             'gift_key': gift_id
         })
 
