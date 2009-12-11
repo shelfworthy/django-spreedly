@@ -141,7 +141,6 @@ class Gift(models.Model):
     def get_activation_url(self):
         return 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[self.uuid]))
     
-    
     def send_activation_email(self):
         if not self.sent_at: #don't spam user with invitations
             send_mail(
@@ -158,5 +157,3 @@ class Gift(models.Model):
             )
             self.sent_at = datetime.today()
             self.save()
-            
-    

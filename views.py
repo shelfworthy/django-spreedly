@@ -89,6 +89,7 @@ def gift_sign_up(request, gift_id, extra_context=None, **kwargs):
         form = GiftRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            signals.gift_accepted.send(sender=user)
             
             return HttpResponseRedirect('/')
     else:
