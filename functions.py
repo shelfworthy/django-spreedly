@@ -15,8 +15,10 @@ def sync_plans():
     '''
     client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
     
+    Plan.objects.all().delete()
+    
     for plan in client.get_plans():
-        p, created = Plan.objects.get_or_create(speedly_id=plan['speedly_id'])
+        p = Plan.objects.create(speedly_id=plan['speedly_id'])
         
         changed = False
         for k, v in plan.items():
