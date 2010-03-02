@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.csrf import csrf_exempt
 
 from spreedly.pyspreedly.api import Client
 from spreedly.functions import sync_plans, get_subscription, start_free_trial
@@ -165,6 +166,8 @@ def spreedly_return(request, user_id, plan_pk=None, extra_context=None, **kwargs
 def my_subscription(request):
     return spreedly_return(request, request.user.id)
 
+
+@csrf_exempt
 def spreedly_listener(request):
     if request.method == 'POST':
         # Try to extract customers' IDs
