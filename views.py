@@ -1,5 +1,5 @@
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.cache import cache
@@ -161,6 +161,12 @@ def spreedly_return(request, user_id, plan_pk=None, extra_context=None, **kwargs
         kwargs,
         context_instance=context
     )
+    
+def spreedly_return_trial(request, user_id):
+    ''' simplified version of spreedly_return for trial users'''
+    user = get_object_or_404(User, pk=user_id)
+    
+    return HttpResponseRedirect(settings.LOGIN_URL)
 
 @login_required
 def my_subscription(request):
