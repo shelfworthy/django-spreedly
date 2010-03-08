@@ -165,7 +165,8 @@ def spreedly_return(request, user_id, plan_pk=None, extra_context=None, **kwargs
 def spreedly_return_trial(request, user_id):
     ''' simplified version of spreedly_return for trial users'''
     user = get_object_or_404(User, pk=user_id)
-    
+    user.is_active=True
+    user.save()
     return HttpResponseRedirect(settings.LOGIN_URL)
 
 @login_required
