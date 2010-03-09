@@ -67,12 +67,12 @@ def return_url(plan_pk, user, trial=False):
         url = url + '?trial=true'
     return url
 
-def subscription_url(plan, user, giver_email=None):
-    url = 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_username)s?return_url=%(return_url)s' % {
+def subscription_url(plan, user, giver_email=None, screen_name=None):
+    url = 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(screen_name)s?return_url=%(return_url)s' % {
         'site_name': settings.SPREEDLY_SITE_NAME,
         'plan_id': plan.pk,
         'user_id': user.id,
-        'user_username': user.username,
+        'screen_name': screen_name or user.username,
         'user_email': user.email,
         'return_url': return_url(plan.pk, user)
     }
