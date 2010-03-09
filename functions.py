@@ -79,7 +79,7 @@ def subscription_url(plan, user, giver_email=None):
     }
     
     if plan.is_gift_plan:
-        email = giver_email:
+        email = giver_email
     else:
         email = user.email
     
