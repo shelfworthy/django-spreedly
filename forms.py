@@ -150,46 +150,36 @@ class GiftRegisterForm(forms.Form):
 
 class GiftForm(forms.Form):
     subscription = forms.ModelChoiceField(widget=forms.HiddenInput, queryset=Plan.objects.filter(plan_type='gift'), empty_label=None)
-    your_name = forms.CharField(
+    from_name = forms.CharField(
         label="Your Name",
         required=True
     )
+    from_email = forms.EmailField(required=True)
     message = forms.CharField(
         label="Message",
         required=False,
         widget=forms.Textarea(attrs={'rows':3, 'cols':55})
     )
-    email = forms.EmailField(
+    who_for = forms.EmailField(
         label="Email",
         required=True
     )
-    email_again = forms.EmailField(
-        label="Email Again",
-        required=True
-    )
     
-    def clean(self):
-        email =     self.cleaned_data.get("email")
-        email2 =    self.cleaned_data.get("email_again")
         
-        if email and email2:
-            if email != email2:
-                raise forms.ValidationError(_("The two emails don't match. Please make sure both are correct."))
-        return self.cleaned_data
-    
     def save(self, request):
         gift_id = str(uuid.uuid4().hex)[:29]
         plan = self.cleaned_data["subscription"]
         
         user = User.objects.create(
             username=gift_id,
-            email=self.cleaned_data["email"],
+            email=self.cleaned_data["who_for"],
             is_active=False,
             password='GIFT'
         )
         
         Gift.objects.create(
-            from_user=get_shelfworthy_member().user,
+            from_name=self.cleaned_data['from_name'],
+            from_email=self.cleaned_data['from_email'],
             to_user=user,
             uuid = gift_id,
             plan_name=plan.name,
@@ -250,7 +240,8 @@ class AdminGiftForm(forms.Form):
         )
         
         Gift.objects.create(
-            from_user=request.user,
+            from_name=request.user.username,
+            from_email=request.user.email,
             to_user=user,
             uuid = gift_id,
             message=self.cleaned_data["message"],
