@@ -68,7 +68,7 @@ def return_url(plan_pk, user, trial=False):
         url = url + '?trial=true'
     return url
 
-def subscription_url(plan, user):
+def subscription_url(plan, user, giver_email=None):
     url = 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_username)s?return_url=%(return_url)s' % {
         'site_name': settings.SPREEDLY_SITE_NAME,
         'plan_id': plan.pk,
@@ -78,7 +78,12 @@ def subscription_url(plan, user):
         'return_url': return_url(plan.pk, user)
     }
     
-    if not plan.is_gift_plan:
-        url = url + '&email=%s' % user.email
+    if plan.is_gift_plan:
+        email = giver_email:
+    else:
+        email = user.email
+    
+    if email:
+        url = url + '&email=%s' % email
     
     return url
