@@ -15,6 +15,8 @@ import spreedly.settings as spreedly_settings
 
 from spreedly.pyspreedly.api import Client
 
+from shelfworthy.apps.members.functions import get_shelfworthy_member
+
 class SubscribeForm(forms.Form):
     username = forms.CharField(
         max_length=30,
@@ -147,7 +149,7 @@ class GiftRegisterForm(forms.Form):
         return user
 
 class GiftForm(forms.Form):
-    subscription = forms.ModelChoiceField(queryset=Plan.objects.filter(plan_type='gift'), empty_label=None)
+    subscription = forms.ModelChoiceField(widget=forms.HiddenInput, queryset=Plan.objects.filter(plan_type='gift'), empty_label=None)
     your_name = forms.CharField(
         label="Your Name",
         required=True
@@ -187,7 +189,7 @@ class GiftForm(forms.Form):
         )
         
         Gift.objects.create(
-            from_user=request.user,
+            from_user=get_shelfworthy_member().user,
             to_user=user,
             uuid = gift_id,
             plan_name=plan.name,
