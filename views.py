@@ -167,7 +167,7 @@ def spreedly_return_trial(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     user.is_active=True
     user.save()
-    return HttpResponseRedirect(settings.LOGIN_URL)
+    return HttpResponseRedirect(settings.LOGIN_URL + '?new_member=true')
 
 @login_required
 def my_subscription(request):
