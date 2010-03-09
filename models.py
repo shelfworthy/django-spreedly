@@ -85,6 +85,15 @@ class SubscriptionManager(models.Manager):
         Determine if given user has active subscription
         '''
         return self.model.objects.filter(user=user, active=True).filter(Q(active_until__gt=datetime.today())|Q(active_until__isnull=True)).count()
+        
+    def ending_in_month(self):
+        start = datetime.today()
+        end = datetime.today() + timedelta(days=30)
+        
+        return self.get_query_set().filter(active_until__range=(start, end))
+        
+    def postable(self):
+        return self.ending_in_month().filter(notification_sent__isnull=True)
 
 class Subscription(models.Model):
     name = models.CharField(max_length=100, blank=True)
@@ -93,7 +102,9 @@ class Subscription(models.Model):
     first_name = models.CharField(blank=True, max_length=100)
     last_name = models.CharField(blank=True, max_length=100)
     feature_level = models.CharField(max_length=100, blank=True)
-    active_until = models.DateTimeField(blank=True, null=True)
+    active_until = models.DateTimeField(blank=True, null=True, db_index=True)
+    notification_sent = models.DateTimeField(blank=True, null=True, db_index=True)
+    
     token = models.CharField(max_length=100, blank=True)
     
     trial_elegible = models.BooleanField(default=False)
