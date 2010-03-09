@@ -10,6 +10,9 @@ from django.conf import settings
 
 import spreedly.settings as spreedly_settings
 
+# TODO make this a signal
+from shelfworthy.extras.functions import send_html_mail
+
 
 class PlanManager(models.Manager):
     def enabled(self):
@@ -163,17 +166,15 @@ class Gift(models.Model):
     
     def send_activation_email(self):
         if not self.sent_at: #don't spam user with invitations
-            send_mail(
-                spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT,
-                render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
-                    'message': self.message,
-                    'plan_name': self.plan_name,
-                    'giver': self.giver, 
-                    'site': spreedly_settings.SPREEDLY_SITE_URL,
-                    'register_url': self.get_activation_url()
-                }),
-                settings.DEFAULT_FROM_EMAIL,
-                [self.to_user.email,]
-            )
+            subject = spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT
+            
+            send_html_mail(subject, settings.DEFAULT_FROM_EMAIL, [self.to_user.email,], spreedly_settings.SPREEDLY_GIFT_EMAIL, {
+                'message': self.message,
+                'plan_name': self.plan_name,
+                'giver': self.giver, 
+                'site': spreedly_settings.SPREEDLY_SITE_URL,
+                'register_url': self.get_activation_url()
+            })
+            
             self.sent_at = datetime.today()
             self.save()
