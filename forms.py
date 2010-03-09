@@ -151,8 +151,7 @@ class GiftRegisterForm(forms.Form):
 class GiftForm(forms.Form):
     subscription = forms.ModelChoiceField(widget=forms.HiddenInput, queryset=Plan.objects.filter(plan_type='gift'), empty_label=None)
     from_name = forms.CharField(
-        label="Your Name",
-        required=True
+        label="Your Name",required=False
     )
     from_email = forms.EmailField(required=True)
     message = forms.CharField(
