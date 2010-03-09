@@ -69,7 +69,7 @@ def return_url(plan_pk, user, trial=False):
     return url
 
 def subscription_url(plan, user):
-    url = 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_username)s?return_url=%(return_url)s' % {
+    url = 'https://spreedly.com/%(site_name)s/subscribers/%(user_id)s/subscribe/%(plan_id)s/%(user_email)s?return_url=%(return_url)s' % {
         'site_name': settings.SPREEDLY_SITE_NAME,
         'plan_id': plan.pk,
         'user_id': user.id,
