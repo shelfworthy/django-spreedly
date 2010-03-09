@@ -140,7 +140,9 @@ class Subscription(models.Model):
 class Gift(models.Model):
     uuid = models.CharField(max_length=32, unique=True, db_index=True)
     
-    from_user = models.ForeignKey(User, related_name='gifts_sent')
+    from_name = models.CharField(max_length=50, blank=True, null=True)
+    from_email = models.EmailField(null=True)
+    
     to_user = models.ForeignKey(User, related_name='gifts_received')
     
     plan_name = models.CharField(max_length=100)
@@ -148,6 +150,13 @@ class Gift(models.Model):
     
     created_at = models.DateField(auto_now_add=True)
     sent_at = models.DateField(blank=True, null=True)
+    
+    @property
+    def giver(self):
+        if self.from_name:
+            return '%s (%s)' % (self.from_name, self.from_email)
+        else:
+            return "Anonymouse giver"
     
     def get_activation_url(self):
         return 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('gift_sign_up', args=[self.uuid]))
@@ -159,7 +168,7 @@ class Gift(models.Model):
                 render_to_string(spreedly_settings.SPREEDLY_GIFT_EMAIL, {
                     'message': self.message,
                     'plan_name': self.plan_name,
-                    'giver': '%s (%s)' % (self.from_user, self.from_user.email),
+                    'giver': self.giver, 
                     'site': spreedly_settings.SPREEDLY_SITE_URL,
                     'register_url': self.get_activation_url()
                 }),
