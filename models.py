@@ -64,10 +64,15 @@ class Plan(models.Model):
         # order the items logically
         if self.plan_type == 'free_trial':
             self.order = 1
-        if self.plan_type == 'regular':
+        elif self.duration > 0:
             self.order = 2
-        if self.plan_type == 'gift':
-            self.order = 3
+            if self.plan_type == 'gift':
+                self.order += 1
+        elif self.duration == 0:
+            self.order = 4
+            if self.plan_type == 'gift':
+                self.order += 1
+        
         super(Plan, self).save(*args, **kwargs)
     
     @property
