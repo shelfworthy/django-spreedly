@@ -132,6 +132,8 @@ def email_sent(request, user_id):
 def spreedly_return(request, user_id, plan_pk=None, extra_context=None, **kwargs):
     try:
         user = User.objects.get(id=user_id)
+        if user.is_active:
+            plan_pk = None
     except User.DoesNotExist:
         raise Http404
     
