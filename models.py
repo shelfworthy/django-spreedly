@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from django.db import models
 from django.db.models import Q
@@ -94,14 +94,22 @@ class SubscriptionManager(models.Manager):
         '''
         return self.model.objects.filter(user=user, active=True).filter(Q(active_until__gt=datetime.today())|Q(active_until__isnull=True)).count()
         
-    def ending_in_month(self):
+    def ends_in_month(self):
         start = datetime.today()
         end = datetime.today() + timedelta(days=30)
         
         return self.get_query_set().filter(active_until__range=(start, end))
         
-    def postable(self):
-        return self.ending_in_month().filter(notification_sent__isnull=True)
+    def postable(self):        
+        return self.ends_in_month().filter(notification_sent__isnull=True)
+        
+    def ends_today(self):
+        today = date.today().isoformat()
+        first = '%s 00:00:00' % today
+        second = '%s 23:59:59.999999' % today
+        date_range = (first, second)
+        
+        return self.get_query_set().filter(active_until__range=date_range).exclude(notification_sent__range=date_range)
 
 class Subscription(models.Model):
     name = models.CharField(max_length=100, blank=True)
