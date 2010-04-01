@@ -8,7 +8,7 @@ urlpatterns = patterns('spreedly.views',
     url(r'^admin_gift/$', 'admin_gift', name='admin_gift'),
     url(r'^email_sent/(?P<user_id>\d+)/$', 'email_sent', name='spreedly_email_sent'),
     url(r'^spreedly_listener/$', 'spreedly_listener', name='spreedly_listener'),
-    url(r'^%s(?P<user_id>\d+)/trial/$' % spreedly_settings.SPREEDLY_RETURN_URL[1:], 'spreedly_return_trial', name='spreedly_return_trial'),
+    url(r'^%s(?P<user_id>\d+)/free/$' % spreedly_settings.SPREEDLY_RETURN_URL[1:], 'spreedly_return_trial', name='spreedly_return_trial'),
     url(r'^%s(?P<user_id>\d+)/(?P<plan_pk>\w+)/$' % spreedly_settings.SPREEDLY_RETURN_URL[1:], 'spreedly_return', name='spreedly_return'),
 
     url(r'^my_subscription/$', 'my_subscription', name='my_subscription'),

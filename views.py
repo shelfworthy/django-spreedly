@@ -143,7 +143,7 @@ def spreedly_return(request, user_id, plan_pk=None, extra_context=None, **kwargs
         if plan.plan_type == 'gift':
             Gift.objects.get(to_user=user_id).send_activation_email()
         
-        if request.GET.has_key('trial'):
+        if request.GET.has_key('free'):
             start_free_trial(plan, user)
         
     subscription = get_subscription(user)
