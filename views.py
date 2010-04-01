@@ -143,7 +143,7 @@ def spreedly_return(request, user_id, plan_pk=None, extra_context=None, **kwargs
         if plan.plan_type == 'gift':
             Gift.objects.get(to_user=user_id).send_activation_email()
         
-        if request.GET.has_key('free'):
+        if request.GET.has_key('trial'):
             start_free_trial(plan, user)
         
     subscription = get_subscription(user)
@@ -183,22 +183,11 @@ def spreedly_listener(request):
         if request.POST.has_key('subscriber_ids'):
             subscriber_ids = request.POST['subscriber_ids'].split(',')
             if len(subscriber_ids):
-                client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
                 for id in subscriber_ids:
-                    # Now let's query Spreedly API for the actual changes
-                    data = client.get_info(int(id))
                     try:
                         user = User.objects.get(pk=id)
-
-
-                        subscription, created = Subscription.objects.get_or_create(user=user)
-                            
-                        for k, v in data.items():
-                            if hasattr(subscription, k):
-                                setattr(subscription, k, v)
-                        subscription.save()
                         
-                        signals.subscription_update.send(sender=subscription, user=User.objects.get(id=id))
+                        subscription = get_subscription(user)
                     except User.DoesNotExist:
                         # TODO not sure what exactly to do here. Delete the subscripton on spreedly?
                         pass

@@ -34,15 +34,23 @@ def get_subscription(user):
     subscription, created = Subscription.objects.get_or_create(
         user=user
     )
+    
+    if created:
+        old_sub = subscription
+    else:
+        old_sub = None
+    
     for k, v in data.items():
         if hasattr(subscription, k):
             setattr(subscription, k, v)
     subscription.save()
-    signals.subscription_update.send(sender=subscription, user=user)
+    new_sub = subscription
+    
+    signals.subscription_update.send(sender=subscription, user=user, old_sub=old_sub, new_sub=new_sub)
     return subscription
 
 def check_trial_eligibility(plan, user):
-    if plan.plan_type != 'free':
+    if plan.plan_type != 'free_trial':
         return False
     try:
         # make sure the user is trial eligable (they don't have a subscription yet, or they are trial_elegible)
@@ -64,7 +72,7 @@ def start_free_trial(plan, user):
 def return_url(plan_pk, user, trial=False):
     url = 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('spreedly_return', args=[user.id, plan_pk]))
     if trial:
-        url = url + '?free=true'
+        url = url + '?trial=true'
     return url
 
 def subscription_url(plan, user, giver_email=None, screen_name=None):
@@ -84,5 +92,10 @@ def subscription_url(plan, user, giver_email=None, screen_name=None):
     
     if email:
         url = url + '&email=%s' % email
+    if not plan.is_gift_plan:
+        if user.first_name:
+            url = url + '&first_name=%s' % user.first_name
+        if user.last_name:
+            url = url + '&last_name=%s' % user.last_name
     
     return url
