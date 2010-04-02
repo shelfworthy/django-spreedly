@@ -127,6 +127,7 @@ class Subscription(models.Model):
     lifetime = models.BooleanField(default=False)
     recurring = models.BooleanField(default=False)
     active = models.BooleanField(default=False)
+    gift = models.BooleanField(default=False)
     
     card_expires_before_next_auto_renew = models.BooleanField(default=False)
     
