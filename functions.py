@@ -48,7 +48,7 @@ def get_subscription(user):
     return subscription
 
 def check_trial_eligibility(plan, user):
-    if plan.plan_type != 'free_trial':
+    if plan.plan_type != 'free':
         return False
     try:
         # make sure the user is trial eligable (they don't have a subscription yet, or they are trial_elegible)
@@ -70,7 +70,7 @@ def start_free_trial(plan, user):
 def return_url(plan_pk, user, trial=False):
     url = 'http://%s%s' % (spreedly_settings.SPREEDLY_SITE_URL, reverse('spreedly_return', args=[user.id, plan_pk]))
     if trial:
-        url = url + '?trial=true'
+        url = url + '?free=true'
     return url
 
 def subscription_url(plan, user, giver_email=None, screen_name=None):
