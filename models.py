@@ -62,7 +62,7 @@ class Plan(models.Model):
     
     def save(self, *args, **kwargs):
         # order the items logically
-        if self.plan_type == 'free_trial':
+        if self.plan_type == 'free':
             self.order = 1
         elif self.duration > 0:
             self.order = 2
@@ -85,7 +85,7 @@ class Plan(models.Model):
 
     @property
     def is_free_trial_plan(self):
-        return self.plan_type == "free_trial"
+        return self.plan_type == "free"
 
 class SubscriptionManager(models.Manager):
     def has_active(self, user):
