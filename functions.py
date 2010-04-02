@@ -28,6 +28,7 @@ def sync_plans():
             p.save()
 
 def get_subscription(user):
+    import copy
     client = Client(settings.SPREEDLY_AUTH_TOKEN, settings.SPREEDLY_SITE_NAME)
     data = client.get_info(user.id)
     
@@ -35,18 +36,15 @@ def get_subscription(user):
         user=user
     )
     
-    if created:
-        old_sub = subscription
-    else:
-        old_sub = None
+    old_sub = copy.deepcopy(subscription)
     
     for k, v in data.items():
         if hasattr(subscription, k):
             setattr(subscription, k, v)
     subscription.save()
-    new_sub = subscription
     
-    signals.subscription_update.send(sender=subscription, user=user, old_sub=old_sub, new_sub=new_sub)
+    signals.subscription_update.send(sender=subscription, user=user, old_sub=old_sub, new_sub=subscription)
+    
     return subscription
 
 def check_trial_eligibility(plan, user):
