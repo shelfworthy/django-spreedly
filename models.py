@@ -182,7 +182,7 @@ class Gift(models.Model):
         if not self.sent_at: #don't spam user with invitations
             subject = spreedly_settings.SPREEDLY_GIFT_EMAIL_SUBJECT
             
-            send_html_mail(subject, settings.DEFAULT_FROM_EMAIL, [self.to_user.email,], spreedly_settings.SPREEDLY_GIFT_EMAIL, {
+            send_html_mail(subject, [self.to_user.email,], spreedly_settings.SPREEDLY_GIFT_EMAIL, {
                 'message': self.message,
                 'plan_name': self.plan_name,
                 'giver': self.giver, 
