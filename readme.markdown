@@ -22,7 +22,7 @@ Requirements
 This code is currently only tested on django trunk, but should work without issue on 1.1
 
 * python 2.5 
-* [pyspreedly](http://github.com/chrisdrackett/python-spreedly) <- included as a submodule of this project
+* [pyspreedly](http://github.com/shelfworthy/python-spreedly) <- included as a submodule of this project
 * LOGIN_URL variable in your settings file
 
 Installation
@@ -30,7 +30,7 @@ Installation
 
 1. Checkout the project into a folder called `spreedly` on your python path:
 
-	git clone git://github.com/chrisdrackett/django-spreedly.git spreedly
+	git clone git://github.com/shelfworthy/django-spreedly.git spreedly
 
 2. Update the submodules (this gets the python tender API wrapper)
 
